@@ -4,4 +4,9 @@
    <name>default</name>
    <tag></tag>
    <defaultProfile>true</defaultProfile>
+   <GlobalVariableEntity>
+      <description></description>
+      <initValue>'http://total.itg.ti.com/'</initValue>
+      <name>host</name>
+   </GlobalVariableEntity>
 </GlobalVariableEntities>

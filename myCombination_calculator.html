@@ -138,7 +138,77 @@ function clickButton(){
 
 //combination()
 function combination(){
+var combinationList = document.getElementById("myTextArea").value.replace(/\r\n/g,"\n").split("\n")
+//var combinationList = document.getElementById("myTextArea").value
+//document.getElementById("result").innerHTML += combinationList[0].split(",")[0]
+for(var i=0; i <combinationList.length; i++){
+	reset()
+	var urlList = combinationList[i].split(",")
+	
+	for( var j=0; j < urlList.length; j++ ){
+		if(urlList[j].split("=")[0] == "groupBy"){
+			groupByCount++;
+		}else if(urlList[j].split("=")[0] == "area"){
+			areaCount++
+		}else if(urlList[j].split("=")[0] == "perspective"){
+			perspectiveCount++
+		}else if(urlList[j].split("=")[0] == "time"){
+			timeCount++
+		}else if(urlList[j].split("=")[0] == "customDate"){
+			customDateCount++
+		}
+	}
+	if(groupByCount==1 && areaCount==1 && perspectiveCount==1 && timeCount==1 && customDateCount==1){
+		document.getElementById("result").innerHTML += "http://total.itg.ti.com/ToTaL/?"+checkEscapeCode(combinationList[i])+"<br>"
+		//document.getElementById("result").innerHTML += combinationList[i]+"<br>"
+		total++;
+	}
 
+//document.getElementById("result").innerHTML += combinationList[index] +"<br>"
+}
+document.getElementById("totalCount").innerHTML = total
+document.getElementById("totalCount").parentNode.setAttribute("style","font-weight:bold;color: green")
+
+}
+//groupBy=FAC,area=TEST,perspective=Fab,time=dallas,customDate=2020-03-18 to 2020-05-23
+function checkEscapeCode(combinationList){
+	var parameterValue = combinationList.split(",")
+	var url = ""
+	for(var i=0; i<parameterValue.length; i++){
+		if( parameterValue[i].split("=").length > 2 ){
+			url += "&"+parameterValue[i].split("=")[0]+"="+escapedCode(parameterValue[i].substring(parameterValue[i].indexOf("=")+1)) 
+		}else{
+			url += "&"+parameterValue[i].split("=")[0]+"="+escapedCode(parameterValue[i].split("=")[1])
+		}
+	}
+	return url
+}
+//MTD
+//General Pattern:: str.split(search).join(replacement)
+function escapedCode(valueOfParameter){
+	return valueOfParameter.split("=").join("%3D")
+}
+
+
+
+function reset(){
+//required
+groupByCount = 0
+areaCount = 0
+perspectiveCount = 0
+timeCount = 0
+customDateCount = 0
+//not required
+filterFacility=0
+filterTechnology=0
+filterSBE=0
+filterDevice=0
+filterLot=0
+
+}
+
+
+/*
 var groupBy = ["groupBy=FAC",
 "groupBy=LOC",
 "groupBy=PRTECH",
@@ -172,62 +242,7 @@ var tranDate = ["customDate=2020/04/01-2020/05/19",
 "customDate=MTD",
 "customDate=QTD",
 "customDate=YTD"]
-
-var combinationList = document.getElementById("myTextArea").value.replace(/\r\n/g,"\n").split("\n")
-//var combinationList = document.getElementById("myTextArea").value
-//document.getElementById("result").innerHTML += combinationList[0].split(",")[0]
-for(var i=0; i <combinationList.length; i++){
-	reset()
-	var urlList = combinationList[i].split(",")
-	
-	for( var j=0; j < urlList.length; j++ ){
-		if(urlList[j].split("=")[0] == "groupBy"){
-			groupByCount++;
-		}else if(urlList[j].split("=")[0] == "area"){
-			areaCount++
-		}else if(urlList[j].split("=")[0] == "perspective"){
-			perspectiveCount++
-		}else if(urlList[j].split("=")[0] == "time"){
-			timeCount++
-		}else if(urlList[j].split("=")[0] == "customDate"){
-			customDateCount++
-		}
-	}
-	if(groupByCount==1 && areaCount==1 && perspectiveCount==1 && timeCount==1 && customDateCount==1){
-		document.getElementById("result").innerHTML += combinationList[i]+"<br>"
-		total++;
-	}
-
-//document.getElementById("result").innerHTML += combinationList[index] +"<br>"
-}
-document.getElementById("totalCount").innerHTML = total
-document.getElementById("totalCount").parentNode.setAttribute("style","font-weight:bold;color: green")
-
-}
-function reset(){
-	groupByCount = 0
-	areaCount = 0
-	perspectiveCount = 0
-	timeCount = 0
-	customDateCount =0
-	fabLocationCount=0
-	fabFacilityCount=0
-	probeLocationCount=0
-	probeFacilityCount=0
-	prtechCount=0
-	techCount=0
-	ctechCount=0
-	sbeCount=0
-	sbe1Count=0
-	sbe2Count=0
-	deviceCount=0
-	materialCount=0
-	chipnameCount=0
-}
-
-
-
-
+*/
 
 
 
