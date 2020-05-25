@@ -3,23 +3,101 @@
 <head>
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.3/css/bootstrap.min.css" integrity="sha384-Zug+QiDoJOrZ5t4lssLdxGhVrurbmBWopoEl+M6BdEfwnCJZtKxi1KgxUyJq13dy" crossorigin="anonymous">
  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.3/js/bootstrap.min.js"></script>
+<style>
+progress[value]  {
+  -webkit-appearance: none;
+     -moz-appearance: none;
+          appearance: none;
 
+  height: 30px;
+  width: 100%;
+  color: green; 
+   border-radius: 9px;
+   content: attr('80%');
+}
+.progress{
+	height:15px;
+	font-size:1.2rem;
+	font-weight: bold
+}
+.progress-bar{
+	color:black
+}
 
-
+.progress-bar-tenPercent{
+	background-color: #FF0000
+}
+.progress-bar-twentyPercent{
+	background-color:#FF3400
+}
+.progress-bar-thirtyPercent{
+	background-color:#FF6900
+}
+.progress-bar-fourtyPercent{
+	background-color:#FF8C00
+}
+.progress-bar-fiftyPercent{
+	background-color:#FFC100 
+}
+.progress-bar-sixtyPercent{
+	background-color:#FFE400 
+}
+.progress-bar-seventyPercent{
+	background-color: #FFF600 
+}
+.progress-bar-eightyPercent{
+	background-color:#C2FF00
+}
+.progress-bar-ninetyPercent{
+	background-color:#8DFF00 
+}
+.progress-bar-hundredPercent{
+	background-color:#58FF00 
+}
+.progress-bar-fullPercent{
+	background-color:green;
+	color:white
+}
+</style>
 </head>
 <body>
 <!--https://www.mathsisfun.com/combinatorics/combinations-permutations-calculator.html  Combinations and Permutations Calculator  -->
 <!--https://delim.co/#   link to Comma Separating Tool-->
 <div class="container">	
-	<h5 style="font-weight:bold;">Total Combination with Required URL Parameter: <span id="totalCount"></span></h5>
+	<div class="row">
+		<h5 style="font-weight:bold;">Total Combination with Required URL Parameter: 
+			<span id="totalCount">0</span>/<span id="listCount">0</span>
+		</h5>
+		<div class="container" >
+			<progress style="display:none" max="100" value="0" id="myBar" data-label="50%"></progress>
+			<div class="progress">
+				<div id="myBar2" class="progress-bar progress-bar-striped progress-bar-animated" style="width:0%">
+					 
+				</div>
+			</div>
+			<div class="row" style="display:none" id="progressBarDiv">
+				<div class="col-sm">
+					<div id="fakeProgress" style="display:block">
+						<span class="badge badge-pill" style="color:white"> <span id="emailsCountStartDisplay" class="badge badge-light" style="color:white">0</span></span><progress></progress><span class="badge badge-pill" style="color:white"> <span id="emailsCountDisplay" class="badge badge-light" style="color:white">0</span> Emails</span>
+					</div>
+				</div>
+				
+				<div class="col-sm">
+					<span class="badge badge-pill badge-danger" style="width:100%;display:block" id="resultOfManipulation"> ???</span>
+				</div>
+			</div>
+		</div>
+	</div>
 	<div class="row">
 		<div class="col-sm">
 			<input type="file" id="file">
-			<button onclick="clickButton()">Calculate</button>
+			<!-- <button onclick="clickButton()">Calculate</button> -->
+			<!-- <button onclick="combination('a')">Calculate</button> -->
+			<button onclick="fastUpdate()">Calculate</button>
 		</div>
 		<div class="col-sm">
 			<textarea style="width:450px;height: 50px" id="myTextArea"></textarea>
-			<button onclick="combination()">Calculate</button>
+			<button onclick="combination('b')">Calculate</button>
 		</div>
 		
 	</div>
@@ -50,6 +128,7 @@ input.addEventListener("change", function () {
 		for (var line = 0; line < lines.length; line++) {
 			list.push(lines[line]);
 		}
+		document.getElementById("listCount").innerHTML = list.length;
 		
 	};
     <!-- reader.readAsText(file); -->
@@ -76,7 +155,108 @@ var filterDevice=0
 var filterLot=0
 var total = 0;
 
+/*var myDiv = document.getElementById("innerDiv")
+var myDiv2 = document.getElementById("innerDiv2")
+for(var i = 0;i < 400000;i++){
+    let ii = i;
+    setTimeout(function(){
+        //console.log(ii);
+		myDiv.innerHTML = ii
+    },1000);
+}*/
+function fastUpdate(){
+	document.getElementById("myBar").setAttribute("max",list.length);
+	document.getElementById("myBar2").setAttribute("class","progress-bar bg-danger progress-bar-striped progress-bar-animated")
+	for(var i = 0;i < list.length;i++){
+		let ii = i;
+		setTimeout(function(){
+			var elem = document.getElementById("myBar");
+			var elem2 = document.getElementById("myBar2");
+			//when finished
+			if( ii == list.length-1 ){ 
+				//document.getElementById("myBar").style.display = "none";
+				document.getElementById("myBar2").setAttribute("class","progress-bar progress-bar-fullPercent progress-bar-striped progress-bar-animated")
+				document.getElementById("myBar2").innerHTML = "100% COMPLETE";
+				elem2.setAttribute("style","width:"+parseInt( (ii/list.length)*100)+"%");
+				elem2.setAttribute("style","width:100%");
+				document.getElementById("totalCount").parentNode.setAttribute("style","font-weight:bold;color: green")
+				document.getElementById("totalCount").parentNode.innerHTML = "Total Combination with Required URL Parameter: "+total
+				return;
+			}
+
+			elem.value = ii;
+			elem2.setAttribute("style","width:"+parseInt( (ii/list.length)*100)+"%");
+			elem2.innerHTML = parseInt( (ii/list.length)*100)+"%";
+			document.getElementById("emailsCountStartDisplay").textContent = ii;
+			
+			if( (ii/list.length)*100 < 10 ){
+				document.getElementById("myBar2").setAttribute("class","progress-bar progress-bar-tenPercent progress-bar-striped progress-bar-animated")
+			}else if( (ii/list.length)*100 > 10 && (ii/list.length)*100 < 20 ){
+				document.getElementById("myBar2").setAttribute("class","progress-bar progress-bar-twentyPercent progress-bar-striped progress-bar-animated")			
+			}else if( (ii/list.length)*100 > 20 && (ii/list.length)*100 < 30 ){
+				document.getElementById("myBar2").setAttribute("class","progress-bar progress-bar-thirtyPercent progress-bar-striped progress-bar-animated")			
+			}else if( (ii/list.length)*100 > 30 && (ii/list.length)*100 < 40 ){
+				document.getElementById("myBar2").setAttribute("class","progress-bar progress-bar-fourtyPercent progress-bar-striped progress-bar-animated")			
+			}else if( (ii/list.length)*100 > 40 && (ii/list.length)*100 < 50 ){
+				document.getElementById("myBar2").setAttribute("class","progress-bar progress-bar-fiftyPercent progress-bar-striped progress-bar-animated")						
+			}else if( (ii/list.length)*100 > 50 && (ii/list.length)*100 < 60 ) {
+				document.getElementById("myBar2").setAttribute("class","progress-bar progress-bar-sixtyPercent progress-bar-striped progress-bar-animated")						
+			}else if( (ii/list.length)*100 > 60 && (ii/list.length)*100 < 70 ) {
+				document.getElementById("myBar2").setAttribute("class","progress-bar progress-bar-seventyPercent progress-bar-striped progress-bar-animated")						
+			}else if( (ii/list.length)*100 > 70 && (ii/list.length)*100 < 80 ) {
+				document.getElementById("myBar2").setAttribute("class","progress-bar progress-bar-eightyPercent progress-bar-striped progress-bar-animated")						
+			}else if( (ii/list.length)*100 > 80 && (ii/list.length)*100 < 90 ) {
+				document.getElementById("myBar2").setAttribute("class","progress-bar progress-bar-ninetyPercent progress-bar-striped progress-bar-animated")						
+			}else if( (ii/list.length)*100 > 90 && (ii/list.length)*100 < 100 ) {
+				document.getElementById("myBar2").setAttribute("class","progress-bar progress-bar-hundredPercent progress-bar-striped progress-bar-animated")						
+			}
+			////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+			reset()
+			var urlList = list[ii].split(",")
+			for( var j=0; j < urlList.length; j++ ){
+				if(urlList[j].split("=")[0] == "groupBy"){
+					groupByCount++;
+				}else if(urlList[j].split("=")[0] == "area"){
+					areaCount++
+				}else if(urlList[j].split("=")[0] == "perspective"){
+					perspectiveCount++
+				}else if(urlList[j].split("=")[0] == "time"){
+					timeCount++
+				}else if(urlList[j].split("=")[0] == "customDate"){
+					customDateCount++
+				}
+			}
+			if(groupByCount==1 && areaCount==1 && perspectiveCount==1 && timeCount==1 && customDateCount==1){
+				document.getElementById("result").innerHTML += "http://total.itg.ti.com/ToTaL/?"+checkEscapeCode(list[ii])+"<br>"
+				total++;
+				//progress bar
+				elem.value = ii;
+				elem2.setAttribute("style","width:"+parseInt( (ii/list.length)*100)+"%");
+				elem2.innerHTML = parseInt( (ii/list.length)*100)+"%";
+				document.getElementById("emailsCountStartDisplay").textContent = ii;
+				//document.getElementById("totalCount").innerHTML = ii
+			}
+
+
+			if (ii <= list.length) {
+				elem.value = ii;
+				elem2.setAttribute("style","width:"+parseInt( (ii/list.length)*100)+"%");
+				elem2.innerHTML = parseInt( (ii/list.length)*100)+"%";   
+				document.getElementById("totalCount").innerHTML = ii                
+			 }
+			
+		},1000);
+	}
+	
+}
+
+
+
+
+
+
 function clickButton(){
+
 	console.log(list.length)
 	//document.getElementById("result").innerHTML += list[2]
 	for(var i=0; i <list.length; i++){
@@ -137,11 +317,20 @@ function clickButton(){
 }
 
 //combination()
-function combination(){
-var combinationList = document.getElementById("myTextArea").value.replace(/\r\n/g,"\n").split("\n")
+var barCounter = 0
+function combination(button){
+	if(button == "a"){
+		var combinationList = list
+	}else if(button == "b"){
+		var combinationList = document.getElementById("myTextArea").value.replace(/\r\n/g,"\n").split("\n")
+	}
+	document.getElementById("myBar").setAttribute("max",combinationList.length);
+	document.getElementById("myBar2").setAttribute("class","progress-bar bg-danger progress-bar-striped progress-bar-animated")
+	myLoop(combinationList.length,combinationList)
 //var combinationList = document.getElementById("myTextArea").value
 //document.getElementById("result").innerHTML += combinationList[0].split(",")[0]
-for(var i=0; i <combinationList.length; i++){
+
+/*for(var i=0; i <combinationList.length; i++){
 	reset()
 	var urlList = combinationList[i].split(",")
 	
@@ -163,13 +352,99 @@ for(var i=0; i <combinationList.length; i++){
 		//document.getElementById("result").innerHTML += combinationList[i]+"<br>"
 		total++;
 	}
-
-//document.getElementById("result").innerHTML += combinationList[index] +"<br>"
-}
+} 
 document.getElementById("totalCount").innerHTML = total
 document.getElementById("totalCount").parentNode.setAttribute("style","font-weight:bold;color: green")
-
+*/
 }
+function myLoop(combinationCount,combinationList){
+	try{
+		setTimeout(function () {
+			var elem = document.getElementById("myBar");
+			var elem2 = document.getElementById("myBar2");
+			if( barCounter == combinationCount ){ 
+				console.log("100% complete.")
+				//document.getElementById("myBar").style.display = "none";
+				document.getElementById("myBar2").setAttribute("class","progress-bar progress-bar-fullPercent progress-bar-striped progress-bar-animated")
+				document.getElementById("myBar2").innerHTML = "100% COMPLETE";
+				elem2.setAttribute("style","width:"+parseInt( (barCounter/combinationCount)*100)+"%");
+				elem2.setAttribute("style","width:100%");
+				
+				document.getElementById("totalCount").parentNode.setAttribute("style","font-weight:bold;color: green")
+				return;
+			}
+			//////////////////////////////////
+			elem.value = barCounter;
+			elem2.setAttribute("style","width:"+parseInt( (barCounter/combinationCount)*100)+"%");
+			console.log( parseInt( (barCounter/combinationCount)*100 ))
+			elem2.innerHTML = parseInt( (barCounter/combinationCount)*100)+"%";
+			document.getElementById("emailsCountStartDisplay").textContent = barCounter;
+			
+			if( (barCounter/combinationCount)*100 < 10 ){
+				document.getElementById("myBar2").setAttribute("class","progress-bar progress-bar-tenPercent progress-bar-striped progress-bar-animated")
+			}else if( (barCounter/combinationCount)*100 > 10 && (barCounter/combinationCount)*100 < 20 ){
+				document.getElementById("myBar2").setAttribute("class","progress-bar progress-bar-twentyPercent progress-bar-striped progress-bar-animated")			
+			}else if( (barCounter/combinationCount)*100 > 20 && (barCounter/combinationCount)*100 < 30 ){
+				document.getElementById("myBar2").setAttribute("class","progress-bar progress-bar-thirtyPercent progress-bar-striped progress-bar-animated")			
+			}else if( (barCounter/combinationCount)*100 > 30 && (barCounter/combinationCount)*100 < 40 ){
+				document.getElementById("myBar2").setAttribute("class","progress-bar progress-bar-fourtyPercent progress-bar-striped progress-bar-animated")			
+			}else if( (barCounter/combinationCount)*100 > 40 && (barCounter/combinationCount)*100 < 50 ){
+				document.getElementById("myBar2").setAttribute("class","progress-bar progress-bar-fiftyPercent progress-bar-striped progress-bar-animated")						
+			}else if( (barCounter/combinationCount)*100 > 50 && (barCounter/combinationCount)*100 < 60 ) {
+				document.getElementById("myBar2").setAttribute("class","progress-bar progress-bar-sixtyPercent progress-bar-striped progress-bar-animated")						
+			}else if( (barCounter/combinationCount)*100 > 60 && (barCounter/combinationCount)*100 < 70 ) {
+				document.getElementById("myBar2").setAttribute("class","progress-bar progress-bar-seventyPercent progress-bar-striped progress-bar-animated")						
+			}else if( (barCounter/combinationCount)*100 > 70 && (barCounter/combinationCount)*100 < 80 ) {
+				document.getElementById("myBar2").setAttribute("class","progress-bar progress-bar-eightyPercent progress-bar-striped progress-bar-animated")						
+			}else if( (barCounter/combinationCount)*100 > 80 && (barCounter/combinationCount)*100 < 90 ) {
+				document.getElementById("myBar2").setAttribute("class","progress-bar progress-bar-ninetyPercent progress-bar-striped progress-bar-animated")						
+			}else if( (barCounter/combinationCount)*100 > 90 && (barCounter/combinationCount)*100 < 100 ) {
+				document.getElementById("myBar2").setAttribute("class","progress-bar progress-bar-hundredPercent progress-bar-striped progress-bar-animated")						
+			}
+			////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+			reset()
+			var urlList = combinationList[barCounter].split(",")
+			for( var j=0; j < urlList.length; j++ ){
+				if(urlList[j].split("=")[0] == "groupBy"){
+					groupByCount++;
+				}else if(urlList[j].split("=")[0] == "area"){
+					areaCount++
+				}else if(urlList[j].split("=")[0] == "perspective"){
+					perspectiveCount++
+				}else if(urlList[j].split("=")[0] == "time"){
+					timeCount++
+				}else if(urlList[j].split("=")[0] == "customDate"){
+					customDateCount++
+				}
+			}
+			if(groupByCount==1 && areaCount==1 && perspectiveCount==1 && timeCount==1 && customDateCount==1){
+				document.getElementById("result").innerHTML += "http://total.itg.ti.com/ToTaL/?"+checkEscapeCode(combinationList[barCounter])+"<br>"
+				total++;
+				//progress bar
+				elem.value = barCounter;
+				elem2.setAttribute("style","width:"+parseInt( (barCounter/combinationCount)*100)+"%");
+				elem2.innerHTML = parseInt( (barCounter/combinationCount)*100)+"%";
+				document.getElementById("emailsCountStartDisplay").textContent = barCounter;
+				document.getElementById("totalCount").innerHTML = total
+			}
+			
+			if (barCounter <= combinationCount) {
+				elem.value = barCounter;
+				elem2.setAttribute("style","width:"+parseInt( (barCounter/combinationCount)*100)+"%");
+				elem2.innerHTML = parseInt( (barCounter/combinationCount)*100)+"%";
+				myLoop(combinationList.length,combinationList)
+				//document.getElementById("emailsCountStartDisplay").textContent = barCounter;
+			  barCounter++;                    
+			 }
+			
+		}, 1)
+			   
+	}catch(error){
+		alert(error)
+	}
+}
+
+
 //groupBy=FAC,area=TEST,perspective=Fab,time=dallas,customDate=2020-03-18 to 2020-05-23
 function checkEscapeCode(combinationList){
 	var parameterValue = combinationList.split(",")
@@ -186,7 +461,30 @@ function checkEscapeCode(combinationList){
 //MTD
 //General Pattern:: str.split(search).join(replacement)
 function escapedCode(valueOfParameter){
-	return valueOfParameter.split("=").join("%3D")
+	valueOfParameter = valueOfParameter.split("%").join("%25")
+	valueOfParameter = valueOfParameter.split(" ").join("%20")
+	valueOfParameter = valueOfParameter.split("<").join("%3C")
+	valueOfParameter = valueOfParameter.split(">").join("%3E")
+	valueOfParameter = valueOfParameter.split("#").join("%23")
+	valueOfParameter = valueOfParameter.split("{").join("%7B")
+	valueOfParameter = valueOfParameter.split("}").join("%7D")
+	valueOfParameter = valueOfParameter.split("|").join("%7C")
+	valueOfParameter = valueOfParameter.split("\\").join("%5C")
+	valueOfParameter = valueOfParameter.split("^").join("%5E")///
+	valueOfParameter = valueOfParameter.split("~").join("%7E")
+	valueOfParameter = valueOfParameter.split("[").join("%5B")
+	valueOfParameter = valueOfParameter.split("]").join("%5D")
+	valueOfParameter = valueOfParameter.split("'").join("%60")
+	valueOfParameter = valueOfParameter.split(";").join("%3B")
+	valueOfParameter = valueOfParameter.split("/").join("%2F")
+	valueOfParameter = valueOfParameter.split("?").join("%3F")
+	valueOfParameter = valueOfParameter.split(":").join("%3A")
+	valueOfParameter = valueOfParameter.split("@").join("%40")
+	valueOfParameter = valueOfParameter.split("=").join("%3D")
+	valueOfParameter = valueOfParameter.split("&").join("%26")
+	valueOfParameter = valueOfParameter.split("$").join("%24")
+	
+	return valueOfParameter
 }
 
 
