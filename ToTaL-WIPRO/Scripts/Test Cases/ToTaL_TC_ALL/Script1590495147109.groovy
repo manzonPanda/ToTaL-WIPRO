@@ -19,3 +19,7 @@ not_run: WebUI.callTestCase(findTestCase('Components/Login/Login'), [:], Failure
 
 CustomKeywords.'com.reusableComponents.ManzonAPI_helper.validateUI'('http://total.itg.ti.com/ToTaL/?&groupBy=FAC&area=TEST&perspective=Fab&local=dallas&tranDate=L30D')
 
+CustomKeywords.'com.reusableComponents.ManzonAPI_helper.validateUI'('http://total.itg.ti.com/ToTaL/?&groupBy=LOC&area=TEST&perspective=Fab&local=dallas&tranDate=L30D')
+
+CustomKeywords.'com.reusableComponents.ManzonAPI_helper.validateUI'('http://total.itg.ti.com/ToTaL/?&groupBy=PRTECH&area=TEST&perspective=Fab&local=dallas&tranDate=L30D')
+

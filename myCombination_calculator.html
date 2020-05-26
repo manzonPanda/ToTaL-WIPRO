@@ -93,18 +93,33 @@ progress[value]  {
 			<input type="file" id="file">
 			<!-- <button onclick="clickButton()">Calculate</button> -->
 			<!-- <button onclick="combination('a')">Calculate</button> -->
-			<button onclick="fastUpdate()">Calculate</button>
+			<button onclick="fastUpdate('a')">Calculate</button>
 		</div>
 		<div class="col-sm">
 			<textarea style="width:450px;height: 50px" id="myTextArea"></textarea>
-			<button onclick="combination('b')">Calculate</button>
+			<!-- <button onclick="combination('b')">Calculate</button> -->
+			<button onclick="fastUpdate('b')">Calculate</button>
 		</div>
 		
 	</div>
 </div> 
  <hr>
   
-<div class="container" id="result" ></div>
+<div class="container" id="result" >
+	<div class="row">
+		<div class="col-sm">
+			<table class="table table-sm table-bordered" id="testCases">
+				<thead class="thead-light">
+					<th class="text-center" style="width:8%;color:black;">TC</th>
+					<th class="text-center" style="color:black;">URL</th>
+					<th class="text-center" style="width:10%;color:black;">Description</th>
+				</thead>
+				<tbody id="testCasesTbody" >
+				<tbody>
+			</table>
+		</div>
+	</div>
+</div>
 
 </body>
 </html>
@@ -113,7 +128,7 @@ progress[value]  {
 var input = document.getElementById("file");
 var output = document.getElementById("output");
 
-var list = [];
+var filelist = [];
 input.addEventListener("change", function () {
   if (this.files && this.files[0]) {
     var myFile = this.files[0];
@@ -126,10 +141,9 @@ input.addEventListener("change", function () {
 		var lines = this.result.split('\n');
 		
 		for (var line = 0; line < lines.length; line++) {
-			list.push(lines[line]);
+			filelist.push(lines[line]);
 		}
-		document.getElementById("listCount").innerHTML = list.length;
-		
+		document.getElementById("listCount").innerHTML = filelist.length;
 	};
     <!-- reader.readAsText(file); -->
 	
@@ -164,16 +178,24 @@ for(var i = 0;i < 400000;i++){
 		myDiv.innerHTML = ii
     },1000);
 }*/
-function fastUpdate(){
+function fastUpdate(button){
+	var list
+	if(button == "a"){
+		list = filelist
+	}else if(button == "b"){
+		list = document.getElementById("myTextArea").value.replace(/\r\n/g,"\n").split("\n")
+	}
+	
 	document.getElementById("myBar").setAttribute("max",list.length);
 	document.getElementById("myBar2").setAttribute("class","progress-bar bg-danger progress-bar-striped progress-bar-animated")
-	for(var i = 0;i < list.length;i++){
+	for(var i = 0;i <= list.length;i++){
 		let ii = i;
 		setTimeout(function(){
+			//console.log(list[ii])
 			var elem = document.getElementById("myBar");
 			var elem2 = document.getElementById("myBar2");
 			//when finished
-			if( ii == list.length-1 ){ 
+			if( ii == list.length ){ 
 				//document.getElementById("myBar").style.display = "none";
 				document.getElementById("myBar2").setAttribute("class","progress-bar progress-bar-fullPercent progress-bar-striped progress-bar-animated")
 				document.getElementById("myBar2").innerHTML = "100% COMPLETE";
@@ -220,21 +242,25 @@ function fastUpdate(){
 					areaCount++
 				}else if(urlList[j].split("=")[0] == "perspective"){
 					perspectiveCount++
-				}else if(urlList[j].split("=")[0] == "time"){
+				}else if(urlList[j].split("=")[0] == "local"){
 					timeCount++
-				}else if(urlList[j].split("=")[0] == "customDate"){
+				}else if(urlList[j].split("=")[0] == "tranDate"){
 					customDateCount++
 				}
 			}
 			if(groupByCount==1 && areaCount==1 && perspectiveCount==1 && timeCount==1 && customDateCount==1){
-				document.getElementById("result").innerHTML += "http://total.itg.ti.com/ToTaL/?"+checkEscapeCode(list[ii])+"<br>"
+				//document.getElementById("result").innerHTML += "http://total.itg.ti.com/ToTaL/?"+checkEscapeCode(list[ii])+"<br>"
+				var table = document.getElementById("testCasesTbody");
+				var row = table.insertRow(-1);
+				row.insertCell(0).innerHTML = "TC_"+ii
+				row.insertCell(1).innerHTML = "<span style='display:none'>"+list[ii]+"</span>http://total.itg.ti.com/ToTaL/?"+checkEscapeCode(list[ii])
+				row.insertCell(2).innerHTML = "<button onclick='copyFvpDescription(this)' class='btn btn-info' type='button'>copy</button>"
 				total++;
 				//progress bar
 				elem.value = ii;
 				elem2.setAttribute("style","width:"+parseInt( (ii/list.length)*100)+"%");
 				elem2.innerHTML = parseInt( (ii/list.length)*100)+"%";
 				document.getElementById("emailsCountStartDisplay").textContent = ii;
-				//document.getElementById("totalCount").innerHTML = ii
 			}
 
 
@@ -250,7 +276,28 @@ function fastUpdate(){
 	
 }
 
-
+function copyFvpDescription(row){
+	var combinationSplit = row.parentNode.previousSibling.children[0].innerHTML.split(",")
+/*	Verify if groupBy parameter is set to FAC,
+	area parameter is set to ASSY,
+	perspective parameter is set to FAB,
+	time parameter is set to 0,
+	tranDate parameter is set to startDate-endDate
+	then API will return a tabular data based on the filter values applied.*/
+	var row = "Verify if "+combinationSplit[0].split("=")[0]+" parameter is set to "+combinationSplit[0].split("=")[1]+", "
+		+combinationSplit[1].split("=")[0]+" parameter is set to " + combinationSplit[1].split("=")[1]+", "
+		+combinationSplit[2].split("=")[0]+" parameter is set to " + combinationSplit[2].split("=")[1]+", "
+		+combinationSplit[3].split("=")[0]+" parameter is set to " + combinationSplit[3].split("=")[1]+", "
+		+combinationSplit[4].split("=")[0]+" parameter is set to " + combinationSplit[4].split("=")[1]+","
+		+" then API will return a tabular data based on the filter values applied."
+	  const el = document.createElement('textarea');
+	  el.value = row;
+	  document.body.appendChild(el);
+	  el.select();
+	  document.execCommand('copy');
+	  document.body.removeChild(el);
+	
+}
 
 
 
