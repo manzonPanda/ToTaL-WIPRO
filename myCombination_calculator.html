@@ -1,8 +1,14 @@
 <!DOCTYPE html>
 <html>
 <head>
+
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.3/css/bootstrap.min.css" integrity="sha384-Zug+QiDoJOrZ5t4lssLdxGhVrurbmBWopoEl+M6BdEfwnCJZtKxi1KgxUyJq13dy" crossorigin="anonymous">
  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.3/js/bootstrap.min.js"></script>
+   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+   <link rel="stylesheet" data-id="3" type="text/css" href="https://cdn.datatables.net/v/bs4/jqc-1.12.4/jszip-2.5.0/dt-1.10.20/b-1.6.1/b-colvis-1.6.1/b-flash-1.6.1/b-html5-1.6.1/b-print-1.6.1/cr-1.5.2/fh-3.1.6/r-2.2.3/rr-1.2.6/sl-1.3.1/datatables.min.css"/> 
+<script type="text/javascript" data-id="6" src="https://cdn.datatables.net/v/bs4/jqc-1.12.4/jszip-2.5.0/dt-1.10.20/b-1.6.1/b-colvis-1.6.1/b-flash-1.6.1/b-html5-1.6.1/b-print-1.6.1/cr-1.5.2/fh-3.1.6/r-2.2.3/rr-1.2.6/sl-1.3.1/datatables.min.js"></script>
+  
+ 
 <style>
 progress[value]  {
   -webkit-appearance: none;
@@ -111,8 +117,8 @@ progress[value]  {
 			<table class="table table-sm table-bordered" id="testCases">
 				<thead class="thead-light">
 					<th class="text-center" style="width:8%;color:black;">TC</th>
-					<th class="text-center" style="color:black;">URL</th>
-					<th class="text-center" style="width:10%;color:black;">Description</th>
+					<th class="text-center" style="width:60%;color:black;">URL</th>
+					<th class="text-center" style="color:black;">Fvp Descr</th>
 				</thead>
 				<tbody id="testCasesTbody" >
 				<tbody>
@@ -121,6 +127,8 @@ progress[value]  {
 	</div>
 </div>
 
+
+  
 </body>
 </html>
 
@@ -154,6 +162,36 @@ input.addEventListener("change", function () {
     reader.readAsBinaryString(myFile);
   }   
 });
+$(document).ready(function() {
+			var t1 = $('#testCases').DataTable({
+				destroy: true,
+				 dom: 'Bfrtip',
+				 "paging": false,
+				 "scrollY": "600px",
+				 "scrollCollapse": true,
+				 "order": [[ 0, "asc" ]],
+				buttons: [
+					{
+						extend: 'copyHtml5',
+						exportOptions: {
+							columns: [ 0, ':visible' ]
+						}
+					},
+					{
+						title: 'ToTaL_fvps',
+						extend: 'excelHtml5',
+						exportOptions: {
+							columns: [ 0, 1, 2],
+							rows: ':not(.label-warning)', 
+						}
+					},
+					'colvis'
+				],
+				 responsive: true,				 
+			});	
+
+
+} );
 
 //required
 var groupByCount = 0
@@ -249,13 +287,28 @@ function fastUpdate(button){
 				}
 			}
 			if(groupByCount==1 && areaCount==1 && perspectiveCount==1 && timeCount==1 && customDateCount==1){
-				//document.getElementById("result").innerHTML += "http://total.itg.ti.com/ToTaL/?"+checkEscapeCode(list[ii])+"<br>"
-				var table = document.getElementById("testCasesTbody");
-				var row = table.insertRow(-1);
-				row.insertCell(0).innerHTML = "TC_"+ii
-				row.insertCell(1).innerHTML = "<span style='display:none'>"+list[ii]+"</span>http://total.itg.ti.com/ToTaL/?"+checkEscapeCode(list[ii])
-				row.insertCell(2).innerHTML = "<button onclick='copyFvpDescription(this)' class='btn btn-info' type='button'>copy</button>"
 				total++;
+				//var table = document.getElementById("testCasesTbody");
+				//var row = table.insertRow(-1);
+				//row.insertCell(0).innerHTML = "ToTaL_TC_"+total
+				//row.insertCell(1).innerHTML = "<span style='display:none'>"+list[ii]+"</span>http://total.itg.ti.com/ToTaL/?"+checkEscapeCode(list[ii])
+				//row.insertCell(2).innerHTML = "<button onclick='copyFvpDescription(this)' class='btn btn-info' type='button'>copy</button>"
+				var combinationSplit = list[ii].split(",")
+				var description = "Verify if "+combinationSplit[0].split("=")[0]+" parameter is set to "+combinationSplit[0].split("=")[1]+", "
+				+combinationSplit[1].split("=")[0]+" parameter is set to " + combinationSplit[1].split("=")[1]+", "
+				+combinationSplit[2].split("=")[0]+" parameter is set to " + combinationSplit[2].split("=")[1]+", "
+				+combinationSplit[3].split("=")[0]+" parameter is set to " + combinationSplit[3].split("=")[1]+", "
+				+combinationSplit[4].split("=")[0]+" parameter is set to " + combinationSplit[4].split("=")[1]+","
+				+" then API will return a tabular data based on the filter values applied."
+				//row.insertCell(2).innerHTML = description
+				/////////////////////////////////////////////////////////////////////	
+				var t1 = $('#testCases').DataTable();
+				t1.row.add( [
+						total,
+						"http://total.itg.ti.com/ToTaL/?"+checkEscapeCode(list[ii]),
+						description,
+					] ).draw( false ).node();
+					
 				//progress bar
 				elem.value = ii;
 				elem2.setAttribute("style","width:"+parseInt( (ii/list.length)*100)+"%");
@@ -303,7 +356,6 @@ function copyFvpDescription(row){
 
 
 function clickButton(){
-
 	console.log(list.length)
 	//document.getElementById("result").innerHTML += list[2]
 	for(var i=0; i <list.length; i++){
