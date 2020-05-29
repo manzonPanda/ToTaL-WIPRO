@@ -200,12 +200,23 @@ var  perspectiveCount = 0
 var  timeCount = 0
 var customDateCount = 0
 //not required
-var filterFacilityCount=0
-var filterTechnologyCount=0
-var filterSBECount=0
-var filterDeviceCount=0
-var filterLotCount=0
-var filterColumnCount=0
+var fabLocationCount=0
+var fabFacilityCount=0
+var probeLocationCount=0
+var probeFacilityCount=0
+var prtechCount=0
+var techCount=0
+var ctechCount=0
+var sbeCount=0
+var sbe1Count=0
+var sbe2Count=0
+var deviceCount=0
+var materialCount=0
+var chipnameCount=0
+var fablotCount=0
+var lotCount=0
+var columnsCount=0
+
 var total = 0;
 
 function reset(){
@@ -216,12 +227,23 @@ perspectiveCount = 0
 timeCount = 0
 customDateCount = 0
 //not required
-filterFacilityCount=0
-filterTechnologyCount=0
-filterSBECount=0
-filterDeviceCount=0
-filterLotCount=0
-filterColumnCount=0
+fabLocationCount=0
+fabFacilityCount=0
+probeLocationCount=0
+probeFacilityCount=0
+prtechCount=0
+techCount=0
+ctechCount=0
+sbeCount=0
+sbe1Count=0
+sbe2Count=0
+deviceCount=0
+materialCount=0
+chipnameCount=0
+fablotCount=0
+lotCount=0
+columnsCount=0
+
 
 }
 /*var myDiv = document.getElementById("innerDiv")
@@ -313,29 +335,38 @@ function fastUpdate(button){
 					customDateCount++
 				}
 				//non required
-				if( urlList[j].split("=")[0]=="fabLocation" || urlList[j].split("=")[0]=="fabFacility" || urlList[j].split("=")[0]=="probeLocation" || urlList[j].split("=")[0]=="probeFacility" ){
-					filterFacilityCount++
-					//(filterFacilityCount>1) ? break:""
-				}
-				if( urlList[j].split("=")[0]=="prtech" || urlList[j].split("=")[0]=="tech" || urlList[j].split("=")[0]=="ctech" ){
-					filterTechnologyCount++
-					//(filterTechnologyCount==1) ? nonRequiredValid=true:""
-				}
-				if( urlList[j].split("=")[0]=="sbe" || urlList[j].split("=")[0]=="sbe1" || urlList[j].split("=")[0]=="sbe2" ){
-					filterSBECount++
-					//(filterSBECount>1) ? nonRequiredValid=true:""
-				}
-				if( urlList[j].split("=")[0]=="device" || urlList[j].split("=")[0]=="material" || urlList[j].split("=")[0]=="chipname" ){
-					filterDeviceCount++
-					//(filterDeviceCount>1) ? nonRequiredValid=true:""
-				}
-				if( urlList[j].split("=")[0]=="fablot" || urlList[j].split("=")[0]=="lot" ){
-					filterLotCount++
-					//(filterLotCount>1) ? nonRequiredValid=true:""
-				}
-				if( urlList[j].split("=")[0]=="columns" ){
-					filterColumnCount++
-					//(filterColumnCount>1) ? nonRequiredValid=true:""
+				if( urlList[j].split("=")[0]=="fabLocation" ){
+					fabLocationCount++
+				}else if( urlList[j].split("=")[0]=="fabFacility" ){
+					fabFacilityCount++
+				}else if(urlList[j].split("=")[0]=="probeLocation"){
+					probeLocationCount++
+				}else if(urlList[j].split("=")[0]=="probeFacility"){
+					probeFacilityCount++
+				}else if(urlList[j].split("=")[0]=="prtech" ){
+					prtechCount++
+				}else if(urlList[j].split("=")[0]=="tech" ){
+					techCount++
+				}else if(urlList[j].split("=")[0]=="ctech"){
+					ctechCount++
+				}else if( urlList[j].split("=")[0]=="sbe" ){
+					sbeCount++
+				}else if(urlList[j].split("=")[0]=="sbe1"){
+					sbe1Count++
+				}else if(urlList[j].split("=")[0]=="sbe2"){
+					sbe2Count++
+				}else if( urlList[j].split("=")[0]=="device"){
+					deviceCount++
+				}else if( urlList[j].split("=")[0]=="material"){
+					materialCount++
+				}else if(urlList[j].split("=")[0]=="chipname"){
+					chipnameCount++
+				}else if( urlList[j].split("=")[0]=="fablot"){
+					fablotCount++
+				}else if( urlList[j].split("=")[0]=="lot"){
+					lotCount++
+				}else if( urlList[j].split("=")[0]=="columns" ){
+					columnsCount++
 				}
 			}
 			//required
@@ -359,8 +390,10 @@ function fastUpdate(button){
 				var t1 = $('#testCases').DataTable();
 				t1.row.add( [
 						total,
-						"http://total.itg.ti.com/ToTaL/?"+checkEscapeCode(list[ii]),
+						//"http://total.itg.ti.com/ToTaL/?"+checkEscapeCode(list[ii]),
 						//getParameterNameOnly(list[ii]),
+						//"http://total.itg.ti.com/ToTaL/?"+getParameterNameAndValue(list[ii]),
+						getParameterNameAndValue(list[ii]),
 						//description,
 						"required parameter description"
 					] ).draw( false ).node();
@@ -374,17 +407,23 @@ function fastUpdate(button){
 			//non required	
 			// nonRequiredValid==true
 			//(filterFacilityCount==1 || filterTechnologyCount==1 || filterSBECount==1 || filterDeviceCount==1 || filterLotCount==1 || filterColumnCount==1)
-			if( (filterFacilityCount==1 || filterTechnologyCount==1 || filterSBECount==1 || filterDeviceCount==1 || filterLotCount==1 || filterColumnCount==1) &&
-				(filterFacilityCount<=1 && filterTechnologyCount<=1 && filterSBECount<=1 && filterDeviceCount<=1 && filterLotCount<=1 && filterColumnCount<=1) ){
+			if( (fabLocationCount==1 || fabFacilityCount==1 || probeLocationCount==1 || probeFacilityCount==1 || prtechCount==1 || techCount==1 || ctechCount==1 || sbeCount==1 || sbe1Count==1 || sbe2Count==1 || deviceCount==1 ||    materialCount==1 || chipnameCount==1 || fablotCount==1 || lotCount==1 || columnsCount==1) &&
+				(fabLocationCount<=1 && fabFacilityCount<=1 && probeLocationCount<=1 && probeFacilityCount<=1 && prtechCount<=1 && techCount<=1 && ctechCount<=1 && sbeCount<=1 && sbe1Count<=1 && sbe2Count<=1 && deviceCount<=1 &&    materialCount<=1 && chipnameCount<=1 && fablotCount<=1 && lotCount<=1 && columnsCount<=1) ){
 				total++;
 				var combinationSplit = list[ii].split(",")
-				var description = "non-required parameter description"
+				var description = "Verify if "+combinationSplit[0].split("=")[0]+" parameter is set to "+combinationSplit[0].substring(combinationSplit[0].indexOf("=")+1)+", "
+				+combinationSplit[1].split("=")[0]+" parameter is set to " + combinationSplit[1].substring(combinationSplit[1].indexOf("=")+1)+", "
+				+combinationSplit[2].split("=")[0]+" parameter is set to " + combinationSplit[2].substring(combinationSplit[2].indexOf("=")+1)+", "
+				+combinationSplit[3].split("=")[0]+" parameter is set to " + combinationSplit[3].substring(combinationSplit[3].indexOf("=")+1)+", "
+				+combinationSplit[4].split("=")[0]+" parameter is set to " + combinationSplit[4].substring(combinationSplit[4].indexOf("=")+1)+", "
+				
+				+" together with 5 required parameter, then API will return a tabular data based on the filter values applied."
 				/////////////////////////////////////////////////////////////////////	
 				var t1 = $('#testCases').DataTable();
 				t1.row.add( [
 						total,
-						//"http://total.itg.ti.com/ToTaL/?"+checkEscapeCode(list[ii]),
-						getParameterNameOnly(list[ii]),
+						"http://total.itg.ti.com/ToTaL/?"+checkEscapeCode(list[ii]),
+						//getParameterNameOnly(list[ii]),
 						description,
 					] ).draw( false ).node();
 					
@@ -406,6 +445,30 @@ function fastUpdate(button){
 	}
 	
 }
+function getParameterNameAndValue(combinationList){
+var parameterValueList = combinationList.split(",")
+	var url = ""
+	for(var i=0; i<parameterValueList.length; i++){
+		var parameterValueSplit = parameterValueList[i].split("=")
+		var parameterName =""
+		var valueOfParameter =""
+		if( parameterValueSplit.length > 2 ){
+			parameterName = parameterValueSplit[0]
+			valueOfParameter = parameterValueList[i].substring(parameterValueList[i].indexOf("=")+1)
+		}else{
+			parameterName = parameterValueSplit[0]
+			valueOfParameter = parameterValueSplit[1]
+		}
+		if(i==0){
+			url += parameterName+"="+valueOfParameter
+		}else{
+			url += ","+parameterName+"="+valueOfParameter
+		}
+		
+	}
+	return url
+}
+
 function getParameterNameOnly(combinationList){
 var parameterValueList = combinationList.split(",")
 	var url = ""
@@ -417,7 +480,13 @@ var parameterValueList = combinationList.split(",")
 		}else{
 			parameterName = parameterValueSplit[0]
 		}
-		url += parameterName+"+"
+		
+		if(i==parameterValueList.length-1){
+			url += parameterName
+		}else{
+			url += parameterName+"+"
+		}
+		
 	}
 return url
 }
@@ -464,7 +533,11 @@ function checkEscapeCode(combinationList){
 		valueOfParameter = valueOfParameter.split("=").join("%3D")
 		valueOfParameter = valueOfParameter.split("&").join("%26")
 		valueOfParameter = valueOfParameter.split("$").join("%24")
-		url += "&"+parameterName+"="+valueOfParameter
+		if(i==0){
+			url += parameterName+"="+valueOfParameter
+		}else{
+			url += "&"+parameterName+"="+valueOfParameter
+		}
 	}
 	return url
 }

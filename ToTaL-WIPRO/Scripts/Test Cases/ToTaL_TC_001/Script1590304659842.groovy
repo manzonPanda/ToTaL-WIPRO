@@ -15,7 +15,7 @@ import com.kms.katalon.core.webui.keyword.WebUiBuiltInKeywords as WebUI
 import com.kms.katalon.core.windows.keyword.WindowsBuiltinKeywords as Windows
 import internal.GlobalVariable as GlobalVariable
 
-not_run: WebUI.callTestCase(findTestCase('Components/Login/Login'), [:], FailureHandling.STOP_ON_FAILURE)
+WebUI.callTestCase(findTestCase('Components/Login/Login'), [:], FailureHandling.STOP_ON_FAILURE)
 
-CustomKeywords.'com.reusableComponents.ManzonAPI_helper.validateUI'('http://total.itg.ti.com/ToTaL/?&groupBy=FAC&area=TEST&perspective=Fab&local=dallas&tranDate=L30D')
+CustomKeywords.'com.reusableComponents.ManzonAPI_helper.verifyURL'('groupBy=FAC,area=TEST,perspective=Fab,local=dallas,tranDate=20200318-20200523')
 

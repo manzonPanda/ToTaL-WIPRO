@@ -1,0 +1,9 @@
+groupBy=FAC,area=TEST,perspective=Fab,local=dallas,tranDate=20200318-20200523
+groupBy=FAC,area=TEST,perspective=Fab,local=dallas,tranDate=L30D
+groupBy=FAC,area=TEST,area=TEST,perspective=Fab,local=dallas,tranDate=LM
+groupBy=FAC,area=TEST,perspective=Fab,local=dallas,tranDate=LQ
+groupBy=FAC,area=TEST,perspective=Fab,local=dal=las,tranDate=MT D
+groupBy=FAC,area=TE=ST,perspective=Fab,local=dallas,tranDate=LM
+fabLocation=AMKORK4,lot=0000020
+fabLocation=AMKORK4,lot=0000020,lot=0000020,columns=0
+fabLocation=AMKORK4,columns=0,columns=0
