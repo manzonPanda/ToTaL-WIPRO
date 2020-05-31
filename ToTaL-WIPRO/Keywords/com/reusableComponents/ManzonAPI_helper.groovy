@@ -50,18 +50,135 @@ class ManzonAPI_helper {
 		//String path = System.getProperty("user.dir") + File.separator + "combinationFolder"+File.separator+"sample.txt"
 		//File file = new File(path)
 		//String[] fileContents = file.getText("UTF-8").split("\n")
-
-		String[] result = checkEscapeCode(combination)
-		//enter URL to Browser
-		System.out.println("url: "+result[0])
-
-		//verifyUI()
-		String[] parameterList= result[1].split(",")
-		for(int i=0; i<parameterList.length;i++) {
-			verifyParameterUI(parameterList[i])
+		
+		System.out.println(checkNonrequiredParameters("http://total.itg.ti.com/ToTaL/?groupBy=FAC&area=TEST&perspective=Fab&local=dallas&tranDate=L30D&sbe1=APP&columns=[0,1,2]"))
+		if( checkRequiredParameters(combination)  ) { //&& checkNonrequiredParameters(combination)
+			String[] result = checkEscapeCode(combination)
+			//enter URL to Browser
+			System.out.println("url: "+result[0])
+	
+			//verifyUI()
+			String[] parameterList= result[1].split(",")
+			for(int i=0; i<parameterList.length;i++) {
+				verifyParameterUI(parameterList[i])
+			}
+		}else {
+			KeywordUtil.markWarning("ERROR: Invalid URL.")
 		}
 	}
 
+	public String getValueOfParameter(String parameter, String url,int charSize) {
+		String value = ""
+		String urlSubstring = url.substring(url.indexOf(parameter)+charSize+1)
+		if( urlSubstring.indexOf("&") >= 0 ) {
+			value = urlSubstring.substring(0,urlSubstring.indexOf("&"))
+		}else {
+			value = urlSubstring
+		}
+		return value
+	}
+	public boolean checkNonrequiredParameters(String url) {
+		List<String> allParameter = getAllParameters(url.substring(url.indexOf("/ToTaL/?")+8))
+		List<String> errors = new ArrayList<String>();
+		for(String parameter:allParameter) {
+			if( isValidParameter(parameter) ) {
+				//escape
+				System.out.println("valueToBeEscape::"+getValueOfParameter(parameter,url,parameter.length()))
+				System.out.println( "escapeResult::"+escapeCode( getValueOfParameter(parameter,url,parameter.length()) ) )
+			}else {
+				errors.add("Invalid parameter name: \""+parameter+"\"")
+			}
+		}
+		if(errors.size()>0) {
+			for(String error : errors) {
+				KeywordUtil.markWarning("ERROR: "+error)
+			}
+			return false
+		}else {
+			return true
+		}
+	}
+	public String escapeCode(String valueOfParameter) {
+		//escapedCode()
+		valueOfParameter = valueOfParameter.split("%").join("%25")
+		valueOfParameter = valueOfParameter.split(" ").join("%20")
+		valueOfParameter = valueOfParameter.split("<").join("%3C")
+		valueOfParameter = valueOfParameter.split(">").join("%3E")
+		valueOfParameter = valueOfParameter.split("#").join("%23")
+		valueOfParameter = valueOfParameter.split("\\{").join("%7B")
+		valueOfParameter = valueOfParameter.split("\\}").join("%7D")
+		valueOfParameter = valueOfParameter.split("\\|").join("%7C")
+		valueOfParameter = valueOfParameter.split("\\\\").join("%5C")
+		valueOfParameter = valueOfParameter.split("^").join("%5E")///
+		valueOfParameter = valueOfParameter.split("~").join("%7E")
+		//valueOfParameter = valueOfParameter.split("\\[").join("%5B")
+		valueOfParameter = valueOfParameter.split("\\]").join("%5D")
+		valueOfParameter = valueOfParameter.split("'").join("%60")
+		valueOfParameter = valueOfParameter.split(";").join("%3B")
+		valueOfParameter = valueOfParameter.split("/").join("%2F")
+		valueOfParameter = valueOfParameter.split("\\?").join("%3F")
+		valueOfParameter = valueOfParameter.split(":").join("%3A")
+		valueOfParameter = valueOfParameter.split("@").join("%40")
+		valueOfParameter = valueOfParameter.split("=").join("%3D")
+		valueOfParameter = valueOfParameter.split("&").join("%26")
+		valueOfParameter = valueOfParameter.split("\\\$").join("%24")
+		return valueOfParameter
+	}
+	def getAllParameters(String url) {
+		String[] parameterValueList = url.split("&")
+		List<String> allParameter = new ArrayList<String>();
+		for(int i=0; i<parameterValueList.length; i++){
+			String[] parameterValueSplit = parameterValueList[i].split("=")
+			allParameter.add(parameterValueSplit[0])
+		}
+		return allParameter
+
+	}
+	public boolean checkRequiredParameters(String url) {		
+		List<String> errors = new ArrayList<String>();
+		if( url.indexOf("groupBy")>=0 ) {//groupBy
+			KeywordUtil.markPassed("VERIFIED: groupBy parameter found")
+			if( isValidParameterValue("groupBy",getValueOfParameter("groupBy",url,7)) ) {
+				KeywordUtil.markPassed("VERIFIED:  groupBy value valid:\""+getValueOfParameter("groupBy",url,7)+"\"")
+			}else {
+				errors.add("groupBy value invalid:\"" +getValueOfParameter("groupBy",url,7)+"\"")
+			}
+		}else {
+			errors.add("groupBy parameter not found")
+		}
+
+		if( url.indexOf("area")>=0 ) {//area
+			 KeywordUtil.markPassed("VERIFIED: area parameter found")
+			 if( isValidParameterValue("area",getValueOfParameter("area",url,4)) ) {
+				 KeywordUtil.markPassed("VERIFIED: area value valid:\""+getValueOfParameter("area",url,4)+"\"")
+			 }else {
+				 errors.add("area value invalid:\"" +getValueOfParameter("area",url,4)+"\"")
+			 }
+		}else {
+			errors.add("area parameter not found")
+		}
+		
+		if( url.indexOf("perspective")>=0 ) {//perspective
+			 KeywordUtil.markPassed("VERIFIED: perspective parameter found")
+			 if( isValidParameterValue("perspective",getValueOfParameter("perspective",url,11)) ) {
+				 KeywordUtil.markPassed("VERIFIED: perspective value valid:\""+getValueOfParameter("perspective",url,11)+"\"")
+			 }else {
+				 errors.add("perspective value invalid:\"" +getValueOfParameter("perspective",url,11)+"\"")
+			 }
+		}else {
+			errors.add("perspective parameter not found")
+		}
+		
+		if(errors.size()>0) {
+			for(String error : errors) {
+				KeywordUtil.markWarning("ERROR: "+error)
+			}
+			return false
+		}else {
+			return true
+		}
+		
+	}
 
 	def checkEscapeCode(String combination) {
 		String[] parameterValueList = combination.split(",")
@@ -122,7 +239,23 @@ class ManzonAPI_helper {
 		//url="groupBy=FAC&area=TEST&perspective=Fab&local=dallas&tranDate=LQ"
 		//allParameter="groupBy,area,perspective,local,tranDate"
 	}
-
+	public static boolean isValidParameterValue(String parameter,String value) {
+		if(parameter.equals("groupBy")) {
+			String[] groupByValues = ["FAC","LOC","PRTECH","TECH","TECH","CTECH","SBE","SBE_1","SBE_2","MATERIAL","DEVICE","CHIP","FABLOT","LOT"]
+			return Arrays.asList(groupByValues).contains(value);
+		}else if(parameter.equals("area")) {
+			String[] areaValues = ["TEST","ASSY","SORT","FAB"]
+			return Arrays.asList(areaValues).contains(value);
+		}else if(parameter.equals("perspective")) {
+			String[] perspectiveValues = ["Fab","AT"]
+			return Arrays.asList(perspectiveValues).contains(value);
+		}else if(parameter.equals("local")) {
+			String[] localValues = ["DALLAS","LOCAL"]
+			return Arrays.asList(localValues).contains(value);
+		}	
+		//String[] tranDateValues = ["",""]
+		
+	}
 	public static boolean isValidParameter(String targetValue) {
 		String[] validParameter = [
 			"groupBy",
@@ -217,7 +350,6 @@ class ManzonAPI_helper {
 				break;
 		}
 	}
-
 	public boolean verifyGroupByUi() {
 		//code for verifying groupBy parameter
 		System.out.println("Verified groupBy")
