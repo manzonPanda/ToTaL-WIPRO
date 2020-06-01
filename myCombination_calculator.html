@@ -9,6 +9,10 @@
 <script type="text/javascript" data-id="6" src="https://cdn.datatables.net/v/bs4/jqc-1.12.4/jszip-2.5.0/dt-1.10.20/b-1.6.1/b-colvis-1.6.1/b-flash-1.6.1/b-html5-1.6.1/b-print-1.6.1/cr-1.5.2/fh-3.1.6/r-2.2.3/rr-1.2.6/sl-1.3.1/datatables.min.js"></script>
  
  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.26.0/moment.min.js"></script>
+
+<!--js-combinatorics-->
+<script src="https://cdn.jsdelivr.net/npm/js-combinatorics@0.5"></script>
+
 <style>
 progress[value]  {
   -webkit-appearance: none;
@@ -97,19 +101,65 @@ progress[value]  {
 	<div class="row">
 		<div class="col-sm">
 			<input type="file" id="file">
-			<!-- <button onclick="clickButton()">Calculate</button> -->
-			<!-- <button onclick="combination('a')">Calculate</button> -->
 			<button onclick="fastUpdate('a')">Calculate</button>
 		</div>
 		<div class="col-sm">
 			<textarea style="width:450px;height: 50px" id="myTextArea"></textarea>
-			<!-- <button onclick="combination('b')">Calculate</button> -->
 			<button onclick="fastUpdate('b')">Calculate</button>
 		</div>
 		
 	</div>
 </div> 
+
  <hr>
+ <div class="container" >	
+	<div class="row">
+		<!--Required-->
+		<div class="col-sm">
+		 <div class="card border-dark mb-3" >
+				<div class="input-group" style="width:40%">
+				  <div class="input-group-prepend">
+					<span class="input-group-text" >n:</span>
+				  </div>
+				  <input type="text" placeholder="Number Chosen"  id="numberChoosen" class="form-control">
+				</div>
+				<div class="input-group mb-3">
+				  <div class="input-group-prepend">
+					<span class="input-group-text">List:</span>
+				  </div>
+				  <input type="text" class="form-control" value="groupBy=FAC,groupBy=LOC,groupBy=PRTECH,groupBy=TECH,groupBy=CTECH,groupBy=SBE,groupBy=SBE_1,groupBy=SBE_2,groupBy=MATERIAL,groupBy=DEVICE,groupBy=CHIP,groupBy=FABLOT,groupBy=LOT,area=TEST,area=ASSY,area=SORT,area=FAB,perspective=Fab,perspective=AT,local=dallas,local=local,tranDate=2020-03-18 to 2020-05-23,tranDate=L30D,tranDate=LM,tranDate=LQ,tranDate=MTD,tranDate=QTD,tranDate=YTD" 
+				  id="allList" placeholder="Type all list separeted by commas" >
+				</div>
+				<div class="input-group mb-3">
+				  <div class="input-group-prepend">
+					<span class="input-group-text" >Required Parameters:</span>
+				  </div>
+				  <input type="text" class="form-control" value="groupBy,area,perspective,local,tranDate" id="requiredParameters" placeholder="Required parameter separeted by commas">
+				</div>
+				<button onclick="fastUpdate('c')">Calculate</button>
+			</div>
+		</div>
+		<!-- Non-Required-->
+		<div class="col-sm">
+			<div class="card border-dark mb-3" >
+				<div class="input-group mb-3">
+				  <div class="input-group-prepend">
+					<span class="input-group-text">List:</span>
+				  </div>
+				  <input type="text" class="form-control" id="allListNonRequired" placeholder="Type all list separeted by commas" >
+				</div>
+				<div class="input-group mb-3">
+				  <div class="input-group-prepend">
+					<span class="input-group-text" >Non-Required Parameter:</span>
+				  </div>
+				  <input type="text" class="form-control" id="nonRequiredParameters" placeholder="Required parameter separeted by commas">
+				</div>
+				<button onclick="fastUpdate('c')">Calculate</button>
+			</div>
+		</div>
+	</div>
+ </div>
+  <hr>
   
 <div class="container" id="result" >
 	<div class="row">
@@ -127,8 +177,6 @@ progress[value]  {
 	</div>
 </div>
 
-
-  
 </body>
 </html>
 
@@ -163,42 +211,36 @@ input.addEventListener("change", function () {
   }   
 });
 $(document).ready(function() {
-			var t1 = $('#testCases').DataTable({
-				destroy: true,
-				 dom: 'Bfrtip',
-				 "paging": false,
-				 "scrollY": "600px",
-				 "scrollCollapse": true,
-				 "order": [[ 0, "asc" ]],
-				buttons: [
-					{
-						extend: 'copyHtml5',
-						exportOptions: {
-							columns: [ 0, ':visible' ]
-						}
-					},
-					{
-						title: 'ToTaL_fvps',
-						extend: 'excelHtml5',
-						exportOptions: {
-							columns: [ 0, 1, 2],
-							rows: ':not(.label-warning)', 
-						}
-					},
-					'colvis'
-				],
-				 responsive: true,				 
-			});	
+	var t1 = $('#testCases').DataTable({
+		destroy: true,
+		 dom: 'Bfrtip',
+		 "paging": false,
+		 "scrollY": "600px",
+		 "scrollCollapse": true,
+		 "order": [[ 0, "asc" ]],
+		buttons: [
+			{
+				extend: 'copyHtml5',
+				exportOptions: {
+					columns: [ 0, ':visible' ]
+				}
+			},
+			{
+				title: 'ToTaL_fvps',
+				extend: 'excelHtml5',
+				exportOptions: {
+					columns: [ 0, 1, 2],
+					rows: ':not(.label-warning)', 
+				}
+			},
+			'colvis'
+		],
+		 responsive: true,				 
+	});	
 
 
 } );
 
-//required
-var groupByCount = 0
-var  areaCount = 0
-var  perspectiveCount = 0
-var  timeCount = 0
-var customDateCount = 0
 //not required
 var fabLocationCount=0
 var fabFacilityCount=0
@@ -218,14 +260,11 @@ var lotCount=0
 var columnsCount=0
 
 var total = 0;
+var requiredCount =0
 
 function reset(){
-//required
-groupByCount = 0
-areaCount = 0
-perspectiveCount = 0
-timeCount = 0
-customDateCount = 0
+requiredCount =0
+
 //not required
 fabLocationCount=0
 fabFacilityCount=0
@@ -267,6 +306,20 @@ function fastUpdate(button){
 	}else if(button == "b"){
 		list = document.getElementById("myTextArea").value.replace(/\r\n/g,"\n").split("\n")
 		document.getElementById("listCount").innerHTML = list.length;
+	}else if(button == "c"){
+		allList = document.getElementById("allList").value.replace(/\r\n/g,"\n").split(",")
+		numberChoosen = document.getElementById("numberChoosen").value
+		requiredParameters = document.getElementById("requiredParameters").value
+		temp = Combinatorics.combination(allList, numberChoosen);
+		document.getElementById("listCount").innerHTML = temp.length;
+		list = temp.toArray()
+		
+		//required expression
+		<!-- requiredExpression =""; -->
+		<!-- for( var r=0; r < requiredParameters.split(",").length; r++ ){ -->
+			<!-- requiredExpression += requiredParameters.split(",")[r]+"==1"; -->
+			<!-- r != requiredParameters.split(",").length-1 ? requiredExpression += " && " : ""; -->
+		<!-- } -->
 	}
 
 	document.getElementById("myBar").setAttribute("max",list.length);
@@ -320,120 +373,63 @@ function fastUpdate(button){
 			}
 			////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 			reset()
-			var urlList = list[ii].split(",")
+			//var urlList = list[ii].split(",")
+			var urlList = list[ii].toString().split(",")
 			var nonRequiredValid = false
-			for( var j=0; j < urlList.length; j++ ){
-				if(urlList[j].split("=")[0] == "groupBy"){
-					groupByCount++;
-				}else if(urlList[j].split("=")[0] == "area"){
-					areaCount++
-				}else if(urlList[j].split("=")[0] == "perspective"){
-					perspectiveCount++
-				}else if(urlList[j].split("=")[0] == "local"){
-					timeCount++
-				}else if(urlList[j].split("=")[0] == "tranDate"){
-					customDateCount++
+			
+				for( var k=0; k<requiredParameters.split(",").length;k++ ){
+					//console.log( list[ii].toString().indexOf(requiredParameters.split(",")[k]) >=0)
+					if( list[ii].toString().indexOf(requiredParameters.split(",")[k]) >=0 ){
+						requiredCount++
+					}
 				}
-				//non required
-				if( urlList[j].split("=")[0]=="fabLocation" ){
-					fabLocationCount++
-				}else if( urlList[j].split("=")[0]=="fabFacility" ){
-					fabFacilityCount++
-				}else if(urlList[j].split("=")[0]=="probeLocation"){
-					probeLocationCount++
-				}else if(urlList[j].split("=")[0]=="probeFacility"){
-					probeFacilityCount++
-				}else if(urlList[j].split("=")[0]=="prtech" ){
-					prtechCount++
-				}else if(urlList[j].split("=")[0]=="tech" ){
-					techCount++
-				}else if(urlList[j].split("=")[0]=="ctech"){
-					ctechCount++
-				}else if( urlList[j].split("=")[0]=="sbe" ){
-					sbeCount++
-				}else if(urlList[j].split("=")[0]=="sbe1"){
-					sbe1Count++
-				}else if(urlList[j].split("=")[0]=="sbe2"){
-					sbe2Count++
-				}else if( urlList[j].split("=")[0]=="device"){
-					deviceCount++
-				}else if( urlList[j].split("=")[0]=="material"){
-					materialCount++
-				}else if(urlList[j].split("=")[0]=="chipname"){
-					chipnameCount++
-				}else if( urlList[j].split("=")[0]=="fablot"){
-					fablotCount++
-				}else if( urlList[j].split("=")[0]=="lot"){
-					lotCount++
-				}else if( urlList[j].split("=")[0]=="columns" ){
-					columnsCount++
-				}
-			}
-			//required
-			if( (groupByCount==1 && areaCount==1 && perspectiveCount==1 && timeCount==1 && customDateCount==1) ){
-				total++;
-				//var table = document.getElementById("testCasesTbody");
-				//var row = table.insertRow(-1);
-				//row.insertCell(0).innerHTML = "ToTaL_TC_"+total
-				//row.insertCell(1).innerHTML = "<span style='display:none'>"+list[ii]+"</span>http://total.itg.ti.com/ToTaL/?"+checkEscapeCode(list[ii])
-				//row.insertCell(2).innerHTML = "<button onclick='copyFvpDescription(this)' class='btn btn-info' type='button'>copy</button>"
-				var combinationSplit = list[ii].split(",")
-																		//combinationSplit[4].split("=")[1]
-				var description = "Verify if "+combinationSplit[0].split("=")[0]+" parameter is set to "+combinationSplit[0].substring(combinationSplit[0].indexOf("=")+1)+", "
-				+combinationSplit[1].split("=")[0]+" parameter is set to " + combinationSplit[1].substring(combinationSplit[1].indexOf("=")+1)+", "
-				+combinationSplit[2].split("=")[0]+" parameter is set to " + combinationSplit[2].substring(combinationSplit[2].indexOf("=")+1)+", "
-				+combinationSplit[3].split("=")[0]+" parameter is set to " + combinationSplit[3].substring(combinationSplit[3].indexOf("=")+1)+", "
-				+combinationSplit[4].split("=")[0]+" parameter is set to " + combinationSplit[4].substring(combinationSplit[4].indexOf("=")+1)+","
-				+" then API will return a tabular data based on the filter values applied."
-				//row.insertCell(2).innerHTML = description
-				/////////////////////////////////////////////////////////////////////	
-				var t1 = $('#testCases').DataTable();
-				t1.row.add( [
+
+				if(requiredCount==requiredParameters.split(",").length){
+					total++;
+					var combinationSplit = list[ii].toString().split(",")
+					var t1 = $('#testCases').DataTable();
+					t1.row.add( [
 						total,
-						//"http://total.itg.ti.com/ToTaL/?"+checkEscapeCode(list[ii]),
-						//getParameterNameOnly(list[ii]),
-						//"http://total.itg.ti.com/ToTaL/?"+getParameterNameAndValue(list[ii]),
 						getParameterNameAndValue(list[ii]),
-						//description,
 						"required parameter description"
 					] ).draw( false ).node();
-					
-				//progress bar
-				elem.value = ii;
-				elem2.setAttribute("style","width:"+parseInt( (ii/list.length)*100)+"%");
-				elem2.innerHTML = parseInt( (ii/list.length)*100)+"%";
-				document.getElementById("emailsCountStartDisplay").textContent = ii;
-			}
+						
+					//progress bar
+					elem.value = ii;
+					elem2.setAttribute("style","width:"+parseInt( (ii/list.length)*100)+"%");
+					elem2.innerHTML = parseInt( (ii/list.length)*100)+"%";
+					document.getElementById("emailsCountStartDisplay").textContent = ii;
+				}
+		
 			//non required	
 			// nonRequiredValid==true
-			//(filterFacilityCount==1 || filterTechnologyCount==1 || filterSBECount==1 || filterDeviceCount==1 || filterLotCount==1 || filterColumnCount==1)
-			if( (fabLocationCount==1 || fabFacilityCount==1 || probeLocationCount==1 || probeFacilityCount==1 || prtechCount==1 || techCount==1 || ctechCount==1 || sbeCount==1 || sbe1Count==1 || sbe2Count==1 || deviceCount==1 ||    materialCount==1 || chipnameCount==1 || fablotCount==1 || lotCount==1 || columnsCount==1) &&
-				(fabLocationCount<=1 && fabFacilityCount<=1 && probeLocationCount<=1 && probeFacilityCount<=1 && prtechCount<=1 && techCount<=1 && ctechCount<=1 && sbeCount<=1 && sbe1Count<=1 && sbe2Count<=1 && deviceCount<=1 &&    materialCount<=1 && chipnameCount<=1 && fablotCount<=1 && lotCount<=1 && columnsCount<=1) ){
-				total++;
-				var combinationSplit = list[ii].split(",")
-				var description = "Verify if "+combinationSplit[0].split("=")[0]+" parameter is set to "+combinationSplit[0].substring(combinationSplit[0].indexOf("=")+1)+", "
-				+combinationSplit[1].split("=")[0]+" parameter is set to " + combinationSplit[1].substring(combinationSplit[1].indexOf("=")+1)+", "
-				+combinationSplit[2].split("=")[0]+" parameter is set to " + combinationSplit[2].substring(combinationSplit[2].indexOf("=")+1)+", "
-				+combinationSplit[3].split("=")[0]+" parameter is set to " + combinationSplit[3].substring(combinationSplit[3].indexOf("=")+1)+", "
-				+combinationSplit[4].split("=")[0]+" parameter is set to " + combinationSplit[4].substring(combinationSplit[4].indexOf("=")+1)+", "
+			<!-- if( (fabLocationCount==1 || fabFacilityCount==1 || probeLocationCount==1 || probeFacilityCount==1 || prtechCount==1 || techCount==1 || ctechCount==1 || sbeCount==1 || sbe1Count==1 || sbe2Count==1 || deviceCount==1 ||    materialCount==1 || chipnameCount==1 || fablotCount==1 || lotCount==1 || columnsCount==1) && -->
+				<!-- (fabLocationCount<=1 && fabFacilityCount<=1 && probeLocationCount<=1 && probeFacilityCount<=1 && prtechCount<=1 && techCount<=1 && ctechCount<=1 && sbeCount<=1 && sbe1Count<=1 && sbe2Count<=1 && deviceCount<=1 &&    materialCount<=1 && chipnameCount<=1 && fablotCount<=1 && lotCount<=1 && columnsCount<=1) ){ -->
+				<!-- total++; -->
+				<!-- var combinationSplit = list[ii].split(",") -->
+				<!-- var description = "Verify if "+combinationSplit[0].split("=")[0]+" parameter is set to "+combinationSplit[0].substring(combinationSplit[0].indexOf("=")+1)+", " -->
+				<!-- +combinationSplit[1].split("=")[0]+" parameter is set to " + combinationSplit[1].substring(combinationSplit[1].indexOf("=")+1)+", " -->
+				<!-- +combinationSplit[2].split("=")[0]+" parameter is set to " + combinationSplit[2].substring(combinationSplit[2].indexOf("=")+1)+", " -->
+				<!-- +combinationSplit[3].split("=")[0]+" parameter is set to " + combinationSplit[3].substring(combinationSplit[3].indexOf("=")+1)+", " -->
+				<!-- +combinationSplit[4].split("=")[0]+" parameter is set to " + combinationSplit[4].substring(combinationSplit[4].indexOf("=")+1)+", " -->
 				
-				+" together with 5 required parameter, then API will return a tabular data based on the filter values applied."
-				/////////////////////////////////////////////////////////////////////	
-				var t1 = $('#testCases').DataTable();
-				t1.row.add( [
-						total,
-						"http://total.itg.ti.com/ToTaL/?"+checkEscapeCode(list[ii]),
-						//getParameterNameOnly(list[ii]),
-						description,
-					] ).draw( false ).node();
+				<!-- +" together with 5 required parameter, then API will return a tabular data based on the filter values applied." -->
+				<!-- /////////////////////////////////////////////////////////////////////	 -->
+				<!-- var t1 = $('#testCases').DataTable(); -->
+				<!-- t1.row.add( [ -->
+						<!-- total, -->
+						<!-- "http://total.itg.ti.com/ToTaL/?"+checkEscapeCode(list[ii]), -->
+						<!-- //getParameterNameOnly(list[ii]), -->
+						<!-- description, -->
+					<!-- ] ).draw( false ).node(); -->
 					
-				//progress bar
-				elem.value = ii;
-				elem2.setAttribute("style","width:"+parseInt( (ii/list.length)*100)+"%");
-				elem2.innerHTML = parseInt( (ii/list.length)*100)+"%";
-				document.getElementById("emailsCountStartDisplay").textContent = ii;
+				<!-- //progress bar -->
+				<!-- elem.value = ii; -->
+				<!-- elem2.setAttribute("style","width:"+parseInt( (ii/list.length)*100)+"%"); -->
+				<!-- elem2.innerHTML = parseInt( (ii/list.length)*100)+"%"; -->
+				<!-- document.getElementById("emailsCountStartDisplay").textContent = ii; -->
 				
-			}
+			<!-- } -->
 			if (ii <= list.length) {
 				elem.value = ii;
 				elem2.setAttribute("style","width:"+parseInt( (ii/list.length)*100)+"%");
@@ -446,7 +442,7 @@ function fastUpdate(button){
 	
 }
 function getParameterNameAndValue(combinationList){
-var parameterValueList = combinationList.split(",")
+var parameterValueList = combinationList.toString().split(",")
 	var url = ""
 	for(var i=0; i<parameterValueList.length; i++){
 		var parameterValueSplit = parameterValueList[i].split("=")
@@ -565,9 +561,6 @@ function copyFvpDescription(row){
 	
 }
 
-
-
-
 function clickButton(){
 	console.log(list.length)
 	//document.getElementById("result").innerHTML += list[2]
@@ -639,35 +632,7 @@ function combination(button){
 	document.getElementById("myBar").setAttribute("max",combinationList.length);
 	document.getElementById("myBar2").setAttribute("class","progress-bar bg-danger progress-bar-striped progress-bar-animated")
 	myLoop(combinationList.length,combinationList)
-//var combinationList = document.getElementById("myTextArea").value
-//document.getElementById("result").innerHTML += combinationList[0].split(",")[0]
 
-/*for(var i=0; i <combinationList.length; i++){
-	reset()
-	var urlList = combinationList[i].split(",")
-	
-	for( var j=0; j < urlList.length; j++ ){
-		if(urlList[j].split("=")[0] == "groupBy"){
-			groupByCount++;
-		}else if(urlList[j].split("=")[0] == "area"){
-			areaCount++
-		}else if(urlList[j].split("=")[0] == "perspective"){
-			perspectiveCount++
-		}else if(urlList[j].split("=")[0] == "time"){
-			timeCount++
-		}else if(urlList[j].split("=")[0] == "customDate"){
-			customDateCount++
-		}
-	}
-	if(groupByCount==1 && areaCount==1 && perspectiveCount==1 && timeCount==1 && customDateCount==1){
-		document.getElementById("result").innerHTML += "http://total.itg.ti.com/ToTaL/?"+checkEscapeCode(combinationList[i])+"<br>"
-		//document.getElementById("result").innerHTML += combinationList[i]+"<br>"
-		total++;
-	}
-} 
-document.getElementById("totalCount").innerHTML = total
-document.getElementById("totalCount").parentNode.setAttribute("style","font-weight:bold;color: green")
-*/
 }
 function myLoop(combinationCount,combinationList){
 	try{
@@ -756,83 +721,5 @@ function myLoop(combinationCount,combinationList){
 	}
 }
 
-
-/*
-var groupBy = ["groupBy=FAC",
-"groupBy=LOC",
-"groupBy=PRTECH",
-"groupBy=TECH",
-"groupBy=CTECH",
-"groupBy=SBE",
-"groupBy=SBE_1",
-"groupBy=SBE_2",
-"groupBy=MATERIAL",
-"groupBy=DEVICE",
-"groupBy=CHIP",
-"groupBy=FABLOT",
-"groupBy=LOT",]
-
-var area = ["area=TEST",
-"area=ASSY",
-"area=SORT",
-"area=FAB"]
-
-var perspective = ["perspective=Fab",
-"perspective=AT"]
-
-var time = ["time=dallas",
-"time=local"]
-
-var tranDate = ["customDate=2020/04/01-2020/05/19",
-"customDate=L90D",
-"customDate=L30D",
-"customDate=LM",
-"customDate=LQ",
-"customDate=MTD",
-"customDate=QTD",
-"customDate=YTD"]
-*/
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 </script>
-
-
-
-
-
-
-
-
-
-
-
-
-
 

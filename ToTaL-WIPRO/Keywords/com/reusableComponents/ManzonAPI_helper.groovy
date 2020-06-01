@@ -44,24 +44,25 @@ import com.kms.katalon.core.webui.exception.WebElementNotFoundException
 
 class ManzonAPI_helper {
 
+	static String escapeValues = ""
 	@Keyword
 	def verifyURL(String combination) {
-		//read combinationList in text file
-		//String path = System.getProperty("user.dir") + File.separator + "combinationFolder"+File.separator+"sample.txt"
-		//File file = new File(path)
-		//String[] fileContents = file.getText("UTF-8").split("\n")
-		
-		System.out.println(checkNonrequiredParameters("http://total.itg.ti.com/ToTaL/?groupBy=FAC&area=TEST&perspective=Fab&local=dallas&tranDate=L30D&sbe1=APP&columns=[0,1,2]"))
-		if( checkRequiredParameters(combination)  ) { //&& checkNonrequiredParameters(combination)
-			String[] result = checkEscapeCode(combination)
-			//enter URL to Browser
-			System.out.println("url: "+result[0])
-	
-			//verifyUI()
-			String[] parameterList= result[1].split(",")
-			for(int i=0; i<parameterList.length;i++) {
-				verifyParameterUI(parameterList[i])
-			}
+		//System.out.println(checkNonrequiredParameters("http://total.itg.ti.com/ToTaL/?groupBy=FAC&area=TEST&perspective=Fab&local=dallas&tranDate=L30D&sbe1=APP&columns=[0,2,6]"))
+
+		if( checkRequiredParameters(combination) && checkNonrequiredParameters(combination) ) { 
+//			String[] result = checkEscapeCode(combination)
+//			//enter URL to Browser
+//			System.out.println("url: "+result[0])
+//			//verifyUI()
+//			String[] parameterList= result[1].split(",")
+//			for(int i=0; i<parameterList.length; i++) {
+//				verifyParameterUI(parameterList[i])
+//			}
+			
+			String finalURL = "http://total.itg.ti.com/ToTaL/?"+escapeValues
+			System.out.println("finalURL::"+finalURL)
+			KeywordUtil.markPassed("PASSED: Valid URL. Checking UI...")
+			
 		}else {
 			KeywordUtil.markWarning("ERROR: Invalid URL.")
 		}
@@ -79,12 +80,18 @@ class ManzonAPI_helper {
 	}
 	public boolean checkNonrequiredParameters(String url) {
 		List<String> allParameter = getAllParameters(url.substring(url.indexOf("/ToTaL/?")+8))
+	
 		List<String> errors = new ArrayList<String>();
 		for(String parameter:allParameter) {
 			if( isValidParameter(parameter) ) {
 				//escape
-				System.out.println("valueToBeEscape::"+getValueOfParameter(parameter,url,parameter.length()))
-				System.out.println( "escapeResult::"+escapeCode( getValueOfParameter(parameter,url,parameter.length()) ) )
+				//System.out.println("valueToBeEscape::"+getValueOfParameter(parameter,url,parameter.length()))
+				//System.out.println( "escapeResult::"+escapeCode( getValueOfParameter(parameter,url,parameter.length()) ) )
+				if(escapeValues=="") {
+					escapeValues += parameter+"="+ escapeCode( getValueOfParameter(parameter,url,parameter.length()) )
+				}else {
+					escapeValues += "&"+parameter+"="+ escapeCode( getValueOfParameter(parameter,url,parameter.length()) )
+				}
 			}else {
 				errors.add("Invalid parameter name: \""+parameter+"\"")
 			}
@@ -100,28 +107,28 @@ class ManzonAPI_helper {
 	}
 	public String escapeCode(String valueOfParameter) {
 		//escapedCode()
-		valueOfParameter = valueOfParameter.split("%").join("%25")
-		valueOfParameter = valueOfParameter.split(" ").join("%20")
-		valueOfParameter = valueOfParameter.split("<").join("%3C")
-		valueOfParameter = valueOfParameter.split(">").join("%3E")
-		valueOfParameter = valueOfParameter.split("#").join("%23")
-		valueOfParameter = valueOfParameter.split("\\{").join("%7B")
-		valueOfParameter = valueOfParameter.split("\\}").join("%7D")
-		valueOfParameter = valueOfParameter.split("\\|").join("%7C")
-		valueOfParameter = valueOfParameter.split("\\\\").join("%5C")
-		valueOfParameter = valueOfParameter.split("^").join("%5E")///
-		valueOfParameter = valueOfParameter.split("~").join("%7E")
-		//valueOfParameter = valueOfParameter.split("\\[").join("%5B")
-		valueOfParameter = valueOfParameter.split("\\]").join("%5D")
-		valueOfParameter = valueOfParameter.split("'").join("%60")
-		valueOfParameter = valueOfParameter.split(";").join("%3B")
-		valueOfParameter = valueOfParameter.split("/").join("%2F")
-		valueOfParameter = valueOfParameter.split("\\?").join("%3F")
-		valueOfParameter = valueOfParameter.split(":").join("%3A")
-		valueOfParameter = valueOfParameter.split("@").join("%40")
-		valueOfParameter = valueOfParameter.split("=").join("%3D")
-		valueOfParameter = valueOfParameter.split("&").join("%26")
-		valueOfParameter = valueOfParameter.split("\\\$").join("%24")
+		valueOfParameter = valueOfParameter.replaceAll("%","%25")
+		valueOfParameter = valueOfParameter.replaceAll(" ","%20")
+		valueOfParameter = valueOfParameter.replaceAll("<","%3C")
+		valueOfParameter = valueOfParameter.replaceAll(">","%3E")
+		valueOfParameter = valueOfParameter.replaceAll("#","%23")
+		valueOfParameter = valueOfParameter.replaceAll("\\{","%7B")
+		valueOfParameter = valueOfParameter.replaceAll("\\}","%7D")
+		valueOfParameter = valueOfParameter.replaceAll("\\|","%7C")
+		valueOfParameter = valueOfParameter.replaceAll("\\\\","%5C")//
+		valueOfParameter = valueOfParameter.replaceAll("\\^","%5E")
+		valueOfParameter = valueOfParameter.replaceAll("~","%7E")
+		valueOfParameter = valueOfParameter.replaceAll("\\[","%5B")
+		valueOfParameter = valueOfParameter.replaceAll("\\]","%5D")
+		valueOfParameter = valueOfParameter.replaceAll("'","%60")
+		valueOfParameter = valueOfParameter.replaceAll(";","%3B")
+		valueOfParameter = valueOfParameter.replaceAll("/","%2F")
+		valueOfParameter = valueOfParameter.replaceAll("\\?","%3F")
+		valueOfParameter = valueOfParameter.replaceAll(":","%3A")
+		valueOfParameter = valueOfParameter.replaceAll("@","%40")
+		valueOfParameter = valueOfParameter.replaceAll("=","%3D")//
+		valueOfParameter = valueOfParameter.replaceAll("&","%26")//
+		valueOfParameter = valueOfParameter.replaceAll("\\\$","%24")
 		return valueOfParameter
 	}
 	def getAllParameters(String url) {
