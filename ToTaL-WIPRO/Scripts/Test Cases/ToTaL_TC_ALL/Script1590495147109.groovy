@@ -43,5 +43,5 @@ options.setExperimentalOption('debuggerAddress', 'localhost:9222')
 
 WebDriver driver = new ChromeDriver(options)
 
-CustomKeywords.'com.reusableComponents.ManzonAPI_helper.verifyURL'('http://total.itg.ti.com/ToTaL/?groupBy=FAC&area=TEST&perspective=Fab&local=dallas&tranDate=L30D&sbe1=APP&columns=[0,2,6]')
+CustomKeywords.'com.reusableComponents.ManzonAPI_helper.verifyURL'('http://total.itg.ti.com/ToTaL/drilldown?groupBy=FAC&area=TEST&perspective=Fab&local=dallas&sbe1=AP$P&columns=0,2,6')
 
