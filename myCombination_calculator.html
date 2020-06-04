@@ -116,13 +116,13 @@ progress[value]  {
 	<div class="row">
 		<!--Required-->
 		<div class="col-sm">
-		 <div class="card border-dark mb-3" >
-				<div class="input-group" style="width:40%">
-				  <div class="input-group-prepend">
-					<span class="input-group-text" >n:</span>
-				  </div>
-				  <input type="text" placeholder="Number Chosen"  id="numberChoosen" class="form-control">
-				</div>
+			<div class="card border-dark mb-3" >
+				<!-- <div class="input-group" style="width:40%"> -->
+				  <!-- <div class="input-group-prepend"> -->
+					<!-- <span class="input-group-text" >n:</span> -->
+				  <!-- </div> -->
+				  <!-- <input type="text" placeholder="Number Chosen"  id="numberChoosen" class="form-control"> -->
+				<!-- </div> -->
 				<div class="input-group mb-3">
 				  <div class="input-group-prepend">
 					<span class="input-group-text">List:</span>
@@ -308,8 +308,8 @@ function fastUpdate(button){
 		document.getElementById("listCount").innerHTML = list.length;
 	}else if(button == "c"){
 		allList = document.getElementById("allList").value.replace(/\r\n/g,"\n").split(",")
-		numberChoosen = document.getElementById("numberChoosen").value
 		requiredParameters = document.getElementById("requiredParameters").value
+		numberChoosen = requiredParameters.split(",").length
 		temp = Combinatorics.combination(allList, numberChoosen);
 		document.getElementById("listCount").innerHTML = temp.length;
 		list = temp.toArray()

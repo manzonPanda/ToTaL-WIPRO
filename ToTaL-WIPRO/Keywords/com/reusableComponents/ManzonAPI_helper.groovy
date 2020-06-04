@@ -47,18 +47,9 @@ class ManzonAPI_helper {
 	static String escapeValues = ""
 	@Keyword
 	def verifyURL(String combination) {
-		//System.out.println(checkNonrequiredParameters("http://total.itg.ti.com/ToTaL/drilldown?groupBy=FAC&area=TEST&perspective=Fab&local=dallas&sbe1=AP$P&columns=0,2,6"))
+		//System.out.println(checkNonrequiredParameters("http://total.itg.ti.com/ToTaL/drilldown?groupBy=FAC&area=TEST&perspective=Fab&local=dallas&sbe1=BC JM,ASD&columns=-1,41, 10,24"))
 		//return
-
-		if( checkRequiredParameters(combination) && checkNonrequiredParameters(combination) ) {
-			//			String[] result = checkEscapeCode(combination)
-			//			//enter URL to Browser
-			//			System.out.println("url: "+result[0])
-			//			//verifyUI()
-			//			String[] parameterList= result[1].split(",")
-			//			for(int i=0; i<parameterList.length; i++) {
-			//				verifyParameterUI(parameterList[i])
-			//			}
+		if( checkRequiredParameters(combination) && checkNonrequiredParameters(combination) ) {//
 
 			String finalURL = "http://total.itg.ti.com/ToTaL/drilldown?"+escapeValues
 			System.out.println("finalURL::"+finalURL)
@@ -84,21 +75,38 @@ class ManzonAPI_helper {
 		List<String> errors = new ArrayList<String>();
 		List<String> removedInvalidParameters = new ArrayList<String>();
 		boolean tranDateFound = false
-
+		boolean columnsFound = false
+		
 		for(String parameter:allParameters) {
 			if( isValidParameter(parameter) ) {
 				(parameter.equals("tranDate")) ? tranDateFound=true:""
-				//escape
-				if(escapeValues=="") {
+				(parameter.equals("columns")) ? columnsFound=true:""
+				
+				if(escapeValues=="") {//escape
+					//System.out.println("value::"+getValueOfParameter(parameter,url))
 					escapeValues += parameter+"="+ escapeCode( getValueOfParameter(parameter,url) )
 				}else {
-					escapeValues += "&"+parameter+"="+ escapeCode( getValueOfParameter(parameter,url) )
-				}
+					String value = getValueOfParameter(parameter,url)
+					if( value=="" || value.indexOf("*")>=0 ) { //
+						errors.add("Null value or wild card is not allowed: \""+parameter+"="+value+"\"")
+					}
+					if( parameter.equals("columns") ) {
+						if( !verifiedColumns(value,getValueOfParameter("area",url)) ) {//check if the value is string || exceeds the value allowed by area
+							//error
+							//continue?
+						}
+					}
+					
+					escapeValues += "&"+parameter+"="+ escapeCode( value )
+				 }
+		
 			}else {
 				errors.add("Invalid parameter name: \""+parameter+"\"")
 				removedInvalidParameters.add(parameter)
 			}
 		}
+
+		
 		if(!tranDateFound) {//if not found
 			allParameters.removeAll(removedInvalidParameters)
 			ArrayList<String> requiredParameters = new ArrayList<String>( Arrays.asList("groupBy","area","perspective"));
@@ -110,6 +118,45 @@ class ManzonAPI_helper {
 			}
 		}
 
+		if(errors.size()>0) {
+			for(String error : errors) {
+				KeywordUtil.markWarning("ERROR: "+error)
+			}
+			return false
+		}else {
+			return true
+		}
+	}
+	public boolean verifiedColumns(String columnValue,String areaValue) {
+		String[] splitColumnValue = columnValue.split(",")
+		List<String> errors = new ArrayList<String>();
+		
+		for(String value:splitColumnValue) {
+			try {
+				int index = Integer.parseInt(value);
+				switch(areaValue) {
+					case "TEST":
+						(index<0 || index>40) ? errors.add("Value should be between 0 to 40 by TEST area. Index \""+index+"\" found."):""
+						break;
+					case "ASSY":
+						(index<0 || index>38) ? errors.add("Value should be between 0 to 38 by ASSY area. Index \""+index+"\" found."):""
+						break;
+					case "SORT":
+						(index<0 || index>47) ? errors.add("Value should be between 0 to 47 by SORT area. Index \""+index+"\" found."):""
+						break;
+					case "FAB":
+						(index<0 || index>45) ? errors.add("Value should be between 0 to 45 by FAB area. Index \""+index+"\" found."):""
+						break;
+//					default:
+//						System.out.println("error:areaValue not found")
+						//error
+				}
+			} catch (NumberFormatException nfe) {
+				errors.add("Not a valid integer value for columns parameter. \""+value+"\" found.")
+				break;
+			}
+		}
+		
 		if(errors.size()>0) {
 			for(String error : errors) {
 				KeywordUtil.markWarning("ERROR: "+error)
@@ -262,31 +309,17 @@ class ManzonAPI_helper {
 	}
 	public static boolean isValidParameterValue(String parameter,String value) {
 		if(parameter.equals("groupBy")) {
-			String[] groupByValues = [
-				"FAC",
-				"LOC",
-				"PRTECH",
-				"TECH",
-				"TECH",
-				"CTECH",
-				"SBE",
-				"SBE_1",
-				"SBE_2",
-				"MATERIAL",
-				"DEVICE",
-				"CHIP",
-				"FABLOT",
-				"LOT"
+			String[] groupByValues = ["FAC","LOC","PRTECH","TECH","TECH","CTECH","SBE","SBE_1","SBE_2","MATERIAL","DEVICE","CHIP","FABLOT","LOT"
 			]
 			return Arrays.asList(groupByValues).contains(value);
 		}else if(parameter.equals("area")) {
-			String[] areaValues = ["TEST", "ASSY", "SORT", "FAB"]
+			String[] areaValues = ["TEST","ASSY","SORT","FAB"]
 			return Arrays.asList(areaValues).contains(value);
 		}else if(parameter.equals("perspective")) {
 			String[] perspectiveValues = ["Fab", "AT"]
 			return Arrays.asList(perspectiveValues).contains(value);
 		}else if(parameter.equals("local")) {
-			String[] localValues = ["DALLAS", "LOCAL"]
+			String[] localValues = ["dallas", "local"]
 			return Arrays.asList(localValues).contains(value);
 		}
 		//String[] tranDateValues = ["",""]
