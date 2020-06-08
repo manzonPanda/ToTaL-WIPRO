@@ -55,6 +55,7 @@ class ManzonAPI_helper {
 			System.out.println("finalURL::"+finalURL)
 			KeywordUtil.markPassed("PASSED: Valid URL. \""+finalURL+"\"")
 
+
 		}else {
 			KeywordUtil.markFailedAndStop("ERROR: Invalid URL.")
 		}
@@ -76,12 +77,12 @@ class ManzonAPI_helper {
 		List<String> removedInvalidParameters = new ArrayList<String>();
 		boolean tranDateFound = false
 		boolean columnsFound = false
-		
+
 		for(String parameter:allParameters) {
 			if( isValidParameter(parameter) ) {
 				(parameter.equals("tranDate")) ? tranDateFound=true:""
 				(parameter.equals("columns")) ? columnsFound=true:""
-				
+
 				if(escapeValues=="") {//escape
 					//System.out.println("value::"+getValueOfParameter(parameter,url))
 					escapeValues += parameter+"="+ escapeCode( getValueOfParameter(parameter,url) )
@@ -91,22 +92,23 @@ class ManzonAPI_helper {
 						errors.add("Null value or wild card is not allowed: \""+parameter+"="+value+"\"")
 					}
 					if( parameter.equals("columns") ) {
-						if( !verifiedColumns(value,getValueOfParameter("area",url)) ) {//check if the value is string || exceeds the value allowed by area
-							//error
-							//continue?
-						}
+						verifiedColumns(value,getValueOfParameter("area",url))
+						//if( !verifiedColumns(value,getValueOfParameter("area",url)) ) {//check if the value is string || exceeds the value allowed by area
+						//error
+						//continue?
+						//}
 					}
-					
+
 					escapeValues += "&"+parameter+"="+ escapeCode( value )
-				 }
-		
+				}
+
 			}else {
 				errors.add("Invalid parameter name: \""+parameter+"\"")
 				removedInvalidParameters.add(parameter)
 			}
 		}
 
-		
+
 		if(!tranDateFound) {//if not found
 			allParameters.removeAll(removedInvalidParameters)
 			ArrayList<String> requiredParameters = new ArrayList<String>( Arrays.asList("groupBy","area","perspective"));
@@ -130,7 +132,7 @@ class ManzonAPI_helper {
 	public boolean verifiedColumns(String columnValue,String areaValue) {
 		String[] splitColumnValue = columnValue.split(",")
 		List<String> errors = new ArrayList<String>();
-		
+
 		for(String value:splitColumnValue) {
 			try {
 				int index = Integer.parseInt(value);
@@ -147,16 +149,16 @@ class ManzonAPI_helper {
 					case "FAB":
 						(index<0 || index>45) ? errors.add("Value should be between 0 to 45 by FAB area. Index \""+index+"\" found."):""
 						break;
-//					default:
-//						System.out.println("error:areaValue not found")
-						//error
+					//					default:
+					//						System.out.println("error:areaValue not found")
+					//error
 				}
 			} catch (NumberFormatException nfe) {
 				errors.add("Not a valid integer value for columns parameter. \""+value+"\" found.")
 				break;
 			}
 		}
-		
+
 		if(errors.size()>0) {
 			for(String error : errors) {
 				KeywordUtil.markWarning("ERROR: "+error)
@@ -248,72 +250,32 @@ class ManzonAPI_helper {
 
 	}
 
-	def checkEscapeCode(String combination) {
-		String[] parameterValueList = combination.split(",")
-		String url = ""
-		String allParameter =""
-		for(int i=0; i<parameterValueList.length; i++){
-			String[] parameterValueSplit = parameterValueList[i].split("=")
-			String parameterName =""
-			String valueOfParameter =""
-			if( parameterValueSplit.length > 2 ){
-				parameterName = parameterValueSplit[0]
-				valueOfParameter = parameterValueList[i].substring(parameterValueList[i].indexOf("=")+1)
-			}else{
-				parameterName = parameterValueSplit[0]
-				valueOfParameter = parameterValueSplit[1]
-			}
-
-			//check if parameter name is valid
-			if( isValidParameter(parameterName) ) {
-				//escapedCode()
-				valueOfParameter = valueOfParameter.split("%").join("%25")
-				valueOfParameter = valueOfParameter.split(" ").join("%20")
-				valueOfParameter = valueOfParameter.split("<").join("%3C")
-				valueOfParameter = valueOfParameter.split(">").join("%3E")
-				valueOfParameter = valueOfParameter.split("#").join("%23")
-				valueOfParameter = valueOfParameter.split("\\{").join("%7B")
-				valueOfParameter = valueOfParameter.split("\\}").join("%7D")
-				valueOfParameter = valueOfParameter.split("\\|").join("%7C")
-				valueOfParameter = valueOfParameter.split("\\\\").join("%5C")
-				valueOfParameter = valueOfParameter.split("^").join("%5E")///
-				valueOfParameter = valueOfParameter.split("~").join("%7E")
-				valueOfParameter = valueOfParameter.split("\\[").join("%5B")
-				valueOfParameter = valueOfParameter.split("\\]").join("%5D")
-				valueOfParameter = valueOfParameter.split("'").join("%60")
-				valueOfParameter = valueOfParameter.split(";").join("%3B")
-				valueOfParameter = valueOfParameter.split("/").join("%2F")
-				valueOfParameter = valueOfParameter.split("\\?").join("%3F")
-				valueOfParameter = valueOfParameter.split(":").join("%3A")
-				valueOfParameter = valueOfParameter.split("@").join("%40")
-				valueOfParameter = valueOfParameter.split("=").join("%3D")
-				valueOfParameter = valueOfParameter.split("&").join("%26")
-				valueOfParameter = valueOfParameter.split("\\\$").join("%24")
-				if(i==0){
-					url += parameterName+"="+valueOfParameter
-					allParameter += parameterName
-				}else{
-					url += "&"+parameterName+"="+valueOfParameter
-					allParameter += ","+parameterName
-				}
-			}else{
-				System.out.println("not valid parameter name.")
-			}
-		}
-		return [
-			"http://total.itg.ti.com/ToTaL/?"+url,
-			allParameter
-		]
-		//url="groupBy=FAC&area=TEST&perspective=Fab&local=dallas&tranDate=LQ"
-		//allParameter="groupBy,area,perspective,local,tranDate"
-	}
 	public static boolean isValidParameterValue(String parameter,String value) {
 		if(parameter.equals("groupBy")) {
-			String[] groupByValues = ["FAC","LOC","PRTECH","TECH","TECH","CTECH","SBE","SBE_1","SBE_2","MATERIAL","DEVICE","CHIP","FABLOT","LOT"
+			String[] groupByValues = [
+				"FAC",
+				"LOC",
+				"PRTECH",
+				"TECH",
+				"TECH",
+				"CTECH",
+				"SBE",
+				"SBE_1",
+				"SBE_2",
+				"MATERIAL",
+				"DEVICE",
+				"CHIP",
+				"FABLOT",
+				"LOT"
 			]
 			return Arrays.asList(groupByValues).contains(value);
 		}else if(parameter.equals("area")) {
-			String[] areaValues = ["TEST","ASSY","SORT","FAB"]
+			String[] areaValues = [
+				"TEST",
+				"ASSY",
+				"SORT",
+				"FAB"
+			]
 			return Arrays.asList(areaValues).contains(value);
 		}else if(parameter.equals("perspective")) {
 			String[] perspectiveValues = ["Fab", "AT"]

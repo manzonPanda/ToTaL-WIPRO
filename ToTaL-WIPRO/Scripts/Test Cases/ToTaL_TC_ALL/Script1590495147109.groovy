@@ -36,12 +36,14 @@ not_run: WebUI.callTestCase(findTestCase('Components/Login/Login'), [:], Failure
 //WebDriver driver = DriverFactory.getWebDriver()
 //continue with already opened browser
 System.setProperty('webdriver.chrome.driver', 'C:\\Users\\x1047437\\Desktop\\Katalon_Studio_Windows_64-7.5.0\\Katalon_Studio_Windows_64-7.5.0\\configuration\\resources\\drivers\\chromedriver_win32\\chromedriver.exe')
-
 ChromeOptions options = new ChromeOptions()
-
 options.setExperimentalOption('debuggerAddress', 'localhost:9222')
-
 WebDriver driver = new ChromeDriver(options)
 
-CustomKeywords.'com.reusableComponents.ManzonAPI_helper.verifyURL'('http://total.itg.ti.com/ToTaL/drilldown?groupBy=FAC&area=SORT&perspective=Fab&local=dallas&sbe1=BC JM,ASD&columns=-1,41, 10,24')
+CustomKeywords.'com.reusableComponents.ManzonAPI_helper.verifyURL'('http://total.itg.ti.com/ToTaL/drilldown?groupBy=FAC&area=SORT&perspective=Fab&local=dallas&sbe1=BC JM,ASD&columns=1,36,10,24')
+
+
+
+
+
 
