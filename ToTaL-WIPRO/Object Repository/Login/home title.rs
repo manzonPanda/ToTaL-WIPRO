@@ -7,7 +7,7 @@
    <selectorCollection>
       <entry>
          <key>BASIC</key>
-         <value>//b[@id=&quot;projectTitle&quot;]</value>
+         <value>//a[@href=&quot;/ToTaL&quot;]</value>
       </entry>
    </selectorCollection>
    <selectorMethod>BASIC</selectorMethod>
@@ -17,6 +17,6 @@
       <matchCondition>equals</matchCondition>
       <name>xpath</name>
       <type>Main</type>
-      <value>//b[@id=&quot;projectTitle&quot;]</value>
+      <value>//a[@href=&quot;/ToTaL&quot;]</value>
    </webElementProperties>
 </WebElementEntity>

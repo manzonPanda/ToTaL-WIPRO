@@ -40,22 +40,63 @@ import com.kms.katalon.core.mobile.helper.MobileElementCommonHelper
 import com.kms.katalon.core.util.KeywordUtil
 
 import com.kms.katalon.core.webui.exception.WebElementNotFoundException
-
-
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.text.ParseException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 class ManzonAPI_helper {
 
+	static WebDriver driver = DriverFactory.getWebDriver()
 	static String escapeValues = ""
+	static List<WebElement> tableRows 
+	
+	@Keyword
+	def openBrowser(String url) {
+		
+		DriverFactory.changeWebDriver(driver)
+		driver.navigate().to(url);
+		
+		'Waits for ToTaL Page load for 60 seconds.'
+		WebUI.waitForPageLoad(60)
+		'Maximizes MST Page Window.\r\n'
+		WebUI.maximizeWindow()
+		'Inputs username in email input field.\r\n'
+		WebUI.setText(findTestObject('Login/email text field'), findTestData('data_table').getValue(2, 1))
+		
+		'Inputs encrypted text to password input field.'
+		WebUI.setEncryptedText(findTestObject('Login/pass text field'), findTestData('data_table').getValue(2, 2))
+		
+		'Clicks Submit button.'
+		WebUI.click(findTestObject('Login/submit'))
+		
+		'Waits for MST Page to load.'
+		WebUI.waitForPageLoad(1800)
+		
+		'Verifies home title in MST Homepage.'
+		WebUI.waitForElementPresent(findTestObject('Login/home title'), 30)
+
+	}
 	@Keyword
 	def verifyURL(String combination) {
 		//System.out.println(checkNonrequiredParameters("http://total.itg.ti.com/ToTaL/drilldown?groupBy=FAC&area=TEST&perspective=Fab&local=dallas&sbe1=BC JM,ASD&columns=-1,41, 10,24"))
 		//return
 		if( checkRequiredParameters(combination) && checkNonrequiredParameters(combination) ) {//
-
-			String finalURL = "http://total.itg.ti.com/ToTaL/drilldown?"+escapeValues
-			System.out.println("finalURL::"+finalURL)
+			String finalURL = "http://dfwt-dev.itg.ti.com/ToTaL/drilldown?"+escapeValues
 			KeywordUtil.markPassed("PASSED: Valid URL. \""+finalURL+"\"")
-
-
+			//openBrowser(finalURL) 
+			//UI checking
+			tableRows = driver.findElements(By.xpath('//div[@id="table_anchor"]/table/tbody/tr'))
+			List<String> allParameter = getAllParameters(finalURL.split("drilldown\\?")[1])
+			//for(int i=0; i<allParameter.size(); i++) {
+				verifyParameterUI("tranDate",finalURL)
+			//}
+			
+			
 		}else {
 			KeywordUtil.markFailedAndStop("ERROR: Invalid URL.")
 		}
@@ -92,11 +133,10 @@ class ManzonAPI_helper {
 						errors.add("Null value or wild card is not allowed: \""+parameter+"="+value+"\"")
 					}
 					if( parameter.equals("columns") ) {
-						verifiedColumns(value,getValueOfParameter("area",url))
-						//if( !verifiedColumns(value,getValueOfParameter("area",url)) ) {//check if the value is string || exceeds the value allowed by area
-						//error
-						//continue?
-						//}
+						(verifiedColumns(value,getValueOfParameter("area",url))) ? "":errors.add("Invalid columns value: \""+value+"\"")
+					}
+					if(parameter.equals("tranDate")) {//worng format || not found in predefined values
+						(isValidParameterValue("tranDate",value)) ? "":errors.add("Invalid tranDate value: \""+value+"\"")
 					}
 
 					escapeValues += "&"+parameter+"="+ escapeCode( value )
@@ -136,17 +176,17 @@ class ManzonAPI_helper {
 		for(String value:splitColumnValue) {
 			try {
 				int index = Integer.parseInt(value);
-				switch(areaValue) {
-					case "TEST":
+				switch(areaValue.toLowerCase()) {
+					case "test":
 						(index<0 || index>40) ? errors.add("Value should be between 0 to 40 by TEST area. Index \""+index+"\" found."):""
 						break;
-					case "ASSY":
+					case "assy":
 						(index<0 || index>38) ? errors.add("Value should be between 0 to 38 by ASSY area. Index \""+index+"\" found."):""
 						break;
-					case "SORT":
+					case "sort":
 						(index<0 || index>47) ? errors.add("Value should be between 0 to 47 by SORT area. Index \""+index+"\" found."):""
 						break;
-					case "FAB":
+					case "fab":
 						(index<0 || index>45) ? errors.add("Value should be between 0 to 45 by FAB area. Index \""+index+"\" found."):""
 						break;
 					//					default:
@@ -238,7 +278,6 @@ class ManzonAPI_helper {
 		}else {
 			errors.add("perspective parameter not found")
 		}
-
 		if(errors.size()>0) {
 			for(String error : errors) {
 				KeywordUtil.markWarning("ERROR: "+error)
@@ -249,7 +288,6 @@ class ManzonAPI_helper {
 		}
 
 	}
-
 	public static boolean isValidParameterValue(String parameter,String value) {
 		if(parameter.equals("groupBy")) {
 			String[] groupByValues = [
@@ -283,9 +321,47 @@ class ManzonAPI_helper {
 		}else if(parameter.equals("local")) {
 			String[] localValues = ["dallas", "local"]
 			return Arrays.asList(localValues).contains(value);
+		}else if(parameter.equals("tranDate")) {
+			String[] localValues = ["L90D", "L30D","LM","LQ","MTD","QTD","YTD"]
+			if(value.length()<=4) {
+				return Arrays.asList(localValues).contains(value);
+			}else {//check if valid date format		
+				String[] dates = value.split("-")
+				if(dates.size()==2) {
+					boolean errorFound = false
+					for(String date : dates) {
+						if(!isValidTimeFormat("yyyyMMdd", date)) {
+							errorFound=true
+						}
+					}
+					((dates[0].compareTo(dates[1]) > 0)) ? errorFound=true:""
+					if(errorFound) {
+						return false
+					}else {
+						return true
+					}
+				}else {
+					return false
+				}
+				
+			}
+			
 		}
 		//String[] tranDateValues = ["",""]
 
+	}
+	public static boolean isValidTimeFormat(String format, String value) {
+		Date date = null;
+		try {
+			SimpleDateFormat sdf = new SimpleDateFormat(format);
+			date = sdf.parse(value);
+			if (!value.equals(sdf.format(date))) {
+				date = null;
+			}
+		} catch (ParseException ex) {
+			ex.printStackTrace();
+		}
+		return date != null;
 	}
 	public static boolean isValidParameter(String targetValue) {
 		String[] validParameter = [
@@ -314,22 +390,22 @@ class ManzonAPI_helper {
 		return Arrays.asList(validParameter).contains(targetValue);
 	}
 
-	public void verifyParameterUI(parameterName) {
+	public void verifyParameterUI(parameterName, url) {
 		switch(parameterName) {
 			case "groupBy":
-				verifyGroupByUi()
+				verifyGroupByUi(url)
 				break;
 			case "area":
-				verifyAreaUi()
+				verifyAreaUi(url)
 				break;
 			case "perspective":
-				verifyPerspectiveUi()
+				verifyPerspectiveUi(url)
 				break;
-			case "local":
+			case "local"://
 				verifyLocalUi()
 				break;
 			case "tranDate":
-				verifyTranDateUi()
+				verifyTranDateUi(url)
 				break;
 			case "fabLocation":
 				verifyFabLocationUi()
@@ -381,25 +457,69 @@ class ManzonAPI_helper {
 				break;
 		}
 	}
-	public boolean verifyGroupByUi() {
+	public boolean verifyGroupByUi(url) {
 		//code for verifying groupBy parameter
-		System.out.println("Verified groupBy")
+		String mainTitle = driver.findElement(By.xpath('//div[@id="main_title"]')).getText().toLowerCase()
+		String parameterValue = getValueOfParameter("groupBy",url).toLowerCase()
+		(mainTitle.contains(parameterValue)) ? KeywordUtil.markPassed("PASSED: Verified groupBy."):KeywordUtil.markWarning("ERROR: groupBy value does not match.")
 	}
-	public boolean verifyAreaUi() {
+	public boolean verifyAreaUi(url) {
 		//code for verifying area parameter
-		System.out.println("Verified area")
+		String mainTitle = driver.findElement(By.xpath('//div[@id="main_title"]')).getText().toLowerCase()
+		String parameterValue = getValueOfParameter("area",url).toLowerCase()
+		switch(parameterValue) {
+			case "test" :
+				(mainTitle.contains("test")) ?  KeywordUtil.markPassed("PASSED: Verified area."):KeywordUtil.markWarning("ERROR: area value does not match.")
+			break;
+			case "assy" :
+				(mainTitle.contains("assembly")) ?  KeywordUtil.markPassed("PASSED: Verified area."):KeywordUtil.markWarning("ERROR: area value does not match.")
+			break;
+			case "sort" :
+				(mainTitle.contains("probe")) ?  KeywordUtil.markPassed("PASSED: Verified area."):KeywordUtil.markWarning("ERROR: area value does not match.")
+			break;
+			case "fab" :
+				(mainTitle.contains("fab")) ?  KeywordUtil.markPassed("PASSED: Verified area."):KeywordUtil.markWarning("ERROR: area value does not match.")
+			break;
+			
+		}
+
 	}
-	public boolean verifyPerspectiveUi() {
+	public boolean verifyPerspectiveUi(url) {
 		//code for verifying Perspective parameter
-		System.out.println("Verified Perspective")
+		String mainTitle = driver.findElement(By.xpath('//div[@id="main_title"]')).getText().toLowerCase()
+		String parameterValue = getValueOfParameter("area",url).toLowerCase()
+		String groupByValue = getValueOfParameter("groupBy",url).toLowerCase()
+		if(groupByValue == "fac" || groupByValue == "loc") {
+			switch(parameterValue) {
+				case "fab":
+					(mainTitle.contains("fab")) ? KeywordUtil.markPassed("PASSED: Verified perspective."):KeywordUtil.markWarning("ERROR: perspective value does not match.")
+				case "at":
+					(mainTitle.contains("fab")) ? KeywordUtil.markWarning("ERROR: perspective value does not match."):KeywordUtil.markPassed("PASSED: Verified perspective.")
+			}
+		}
+		
 	}
 	public boolean verifyLocalUi() {
 		//code for verifying local parameter
 		System.out.println("Verified local")
 	}
-	public boolean verifyTranDateUi() {
+	public boolean verifyTranDateUi(url) {
 		//code for verifying tranDate parameter
-		System.out.println("Verified tranDate")
+		String timeTitle = driver.findElement(By.xpath('//div[@id="time_title"]')).getText().toLowerCase() //(Timeframe : 2020-03-10 to 2020-06-08)
+		String parameterValue = getValueOfParameter("tranDate",url).toLowerCase()
+		String[] dates = timeTitle.split(":")[1].split("to")
+		final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+		String startDate = dates[0].trim().substring(0,10)
+		String endDate = dates[1].trim().substring(0,10)
+		println(startDate)
+		println(endDate)
+		LocalDate firstDate = LocalDate.parse(startDate, formatter);
+		LocalDate secondDate = LocalDate.parse(endDate, formatter);
+		long days = ChronoUnit.DAYS.between(firstDate, secondDate);
+		long months = ChronoUnit.MONTHS.between(firstDate, secondDate);
+		System.out.println("Days between: " + days);
+		System.out.println("Months between: " + months);
+		
 	}
 	public boolean verifyFabLocationUi() {
 		//code for verifying fabLocation parameter

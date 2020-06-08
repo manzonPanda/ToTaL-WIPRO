@@ -31,7 +31,7 @@ import org.openqa.selenium.interactions.Actions as Actions
 import org.openqa.selenium.support.ui.WebDriverWait as WebDriverWait
 import org.openqa.selenium.support.ui.ExpectedConditions as ExpectedConditions
 
-not_run: WebUI.callTestCase(findTestCase('Components/Login/Login'), [:], FailureHandling.STOP_ON_FAILURE)
+//WebUI.callTestCase(findTestCase('Components/Login/Login'), [:], FailureHandling.STOP_ON_FAILURE)
 
 //WebDriver driver = DriverFactory.getWebDriver()
 //continue with already opened browser
@@ -39,11 +39,6 @@ System.setProperty('webdriver.chrome.driver', 'C:\\Users\\x1047437\\Desktop\\Kat
 ChromeOptions options = new ChromeOptions()
 options.setExperimentalOption('debuggerAddress', 'localhost:9222')
 WebDriver driver = new ChromeDriver(options)
-
-CustomKeywords.'com.reusableComponents.ManzonAPI_helper.verifyURL'('http://total.itg.ti.com/ToTaL/drilldown?groupBy=FAC&area=SORT&perspective=Fab&local=dallas&sbe1=BC JM,ASD&columns=1,36,10,24')
-
-
-
-
-
+DriverFactory.changeWebDriver(driver)
+CustomKeywords.'com.reusableComponents.ManzonAPI_helper.verifyURL'('https://dfwt-dev.itg.ti.com/ToTaL/drilldown?groupBy=FAC&area=SORT&perspective=Fab&columns=1,47,5&tranDate=20200101-20200229')//20200101-20200229
 

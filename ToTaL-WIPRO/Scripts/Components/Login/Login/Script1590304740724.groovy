@@ -18,41 +18,27 @@ import java.util.Map;
 //System.setProperty("webdriver.chrome.driver", DriverFactory.getChromeDriverPath());
 System.setProperty("webdriver.chrome.driver", "C:\\Users\\x1047437\\Desktop\\Katalon_Studio_Windows_64-7.5.0\\Katalon_Studio_Windows_64-7.5.0\\configuration\\resources\\drivers\\chromedriver_win32\\chromedriver.exe");
 
-//////////////////////////////
-// Setting new download directory path
-Map<String, Object> prefs = new HashMap<String, Object>();
- 
-// Use File.separator as it will work on any OS
-prefs.put("download.default_directory",
-System.getProperty("user.dir") + File.separator + "downloadedFiles");
- 
-ChromeOptions options = new ChromeOptions();
-options.setExperimentalOption("prefs", prefs);
+ChromeDriver driver= new ChromeDriver()
 
-ChromeDriver driver= new ChromeDriver(options)
-
-driver.get(GlobalVariable.host)
+//driver.get(GlobalVariable.host)
 DriverFactory.changeWebDriver(driver)
 
-'Waits for MST Page load for 60 seconds.'
-WebUI.waitForPageLoad(60)
-
-'Maximizes MST Page Window.\r\n'
-WebUI.maximizeWindow()
-
-'Inputs username in email input field.\r\n'
-WebUI.setText(findTestObject('Login/email text field'), findTestData('data_table').getValue(2, 1))
-
-'Inputs encrypted text to password input field.'
-WebUI.setEncryptedText(findTestObject('Login/pass text field'), findTestData('data_table').getValue(2, 2))
-
-'Clicks Submit button.'
-WebUI.click(findTestObject('Login/submit'))
-
-'Waits for MST Page to load.'
-WebUI.waitForPageLoad(1800)
-
-'Verifies home title in ToTaL Homepage.'
-//WebUI.waitForElementPresent(findTestObject('Login/home title'), 30)
+//'Waits for MST Page load for 60 seconds.'
+//WebUI.waitForPageLoad(60)
+//
+//'Maximizes MST Page Window.\r\n'
+//WebUI.maximizeWindow()
+//
+//'Inputs username in email input field.\r\n'
+//WebUI.setText(findTestObject('Login/email text field'), findTestData('data_table').getValue(2, 1))
+//
+//'Inputs encrypted text to password input field.'
+//WebUI.setEncryptedText(findTestObject('Login/pass text field'), findTestData('data_table').getValue(2, 2))
+//
+//'Clicks Submit button.'
+//WebUI.click(findTestObject('Login/submit'))
+//
+//'Waits for MST Page to load.'
+//WebUI.waitForPageLoad(1800)
 
 
