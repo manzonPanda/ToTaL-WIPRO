@@ -40,5 +40,5 @@ ChromeOptions options = new ChromeOptions()
 options.setExperimentalOption('debuggerAddress', 'localhost:9222')
 WebDriver driver = new ChromeDriver(options)
 DriverFactory.changeWebDriver(driver)
-CustomKeywords.'com.reusableComponents.ManzonAPI_helper.verifyURL'('https://dfwt-dev.itg.ti.com/ToTaL/drilldown?groupBy=FAC&area=SORT&perspective=Fab&columns=1,47,5&tranDate=20200101-20200229')//20200101-20200229
+CustomKeywords.'com.reusableComponents.ManzonAPI_helper.verifyURL'('https://dfwt-dev.itg.ti.com/ToTaL/drilldown?groupBy=LOC&area=SORT&perspective=Fab&tranDate=20190101-20200229&fabLocation=AMKORK4&sbe=ASC&columns=24,25')//20200101-20200229
 

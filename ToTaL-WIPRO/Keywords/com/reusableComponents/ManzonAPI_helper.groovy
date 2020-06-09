@@ -53,33 +53,32 @@ class ManzonAPI_helper {
 
 	static WebDriver driver = DriverFactory.getWebDriver()
 	static String escapeValues = ""
-	static List<WebElement> tableRows 
-	
+	static List<WebElement> tableRows
+
 	@Keyword
 	def openBrowser(String url) {
-		
+
 		DriverFactory.changeWebDriver(driver)
 		driver.navigate().to(url);
-		
+
 		'Waits for ToTaL Page load for 60 seconds.'
 		WebUI.waitForPageLoad(60)
 		'Maximizes MST Page Window.\r\n'
 		WebUI.maximizeWindow()
 		'Inputs username in email input field.\r\n'
 		WebUI.setText(findTestObject('Login/email text field'), findTestData('data_table').getValue(2, 1))
-		
+
 		'Inputs encrypted text to password input field.'
 		WebUI.setEncryptedText(findTestObject('Login/pass text field'), findTestData('data_table').getValue(2, 2))
-		
+
 		'Clicks Submit button.'
 		WebUI.click(findTestObject('Login/submit'))
-		
+
 		'Waits for MST Page to load.'
 		WebUI.waitForPageLoad(1800)
-		
+
 		'Verifies home title in MST Homepage.'
 		WebUI.waitForElementPresent(findTestObject('Login/home title'), 30)
-
 	}
 	@Keyword
 	def verifyURL(String combination) {
@@ -88,15 +87,16 @@ class ManzonAPI_helper {
 		if( checkRequiredParameters(combination) && checkNonrequiredParameters(combination) ) {//
 			String finalURL = "http://dfwt-dev.itg.ti.com/ToTaL/drilldown?"+escapeValues
 			KeywordUtil.markPassed("PASSED: Valid URL. \""+finalURL+"\"")
-			//openBrowser(finalURL) 
+			//openBrowser(finalURL)
 			//UI checking
 			tableRows = driver.findElements(By.xpath('//div[@id="table_anchor"]/table/tbody/tr'))
 			List<String> allParameter = getAllParameters(finalURL.split("drilldown\\?")[1])
 			//for(int i=0; i<allParameter.size(); i++) {
-				verifyParameterUI("tranDate",finalURL)
+			verifyParameterUI("fabLocation",finalURL)
+			verifyParameterUI("columns",finalURL)
 			//}
-			
-			
+
+
 		}else {
 			KeywordUtil.markFailedAndStop("ERROR: Invalid URL.")
 		}
@@ -234,6 +234,31 @@ class ManzonAPI_helper {
 		valueOfParameter = valueOfParameter.replaceAll("\\\$","%24")
 		return valueOfParameter
 	}
+	public String undoEscapeCode(String valueOfParameter) {
+		valueOfParameter = valueOfParameter.replaceAll("%25","%")
+		valueOfParameter = valueOfParameter.replaceAll("%20"," ")
+		valueOfParameter = valueOfParameter.replaceAll("%3C","<")
+		valueOfParameter = valueOfParameter.replaceAll("%3E",">")
+		valueOfParameter = valueOfParameter.replaceAll("%23","#")
+		valueOfParameter = valueOfParameter.replaceAll("%7B","\\{")
+		valueOfParameter = valueOfParameter.replaceAll("%7D","\\}")
+		valueOfParameter = valueOfParameter.replaceAll("%7C","\\|")
+		valueOfParameter = valueOfParameter.replaceAll("%5C","\\\\")
+		valueOfParameter = valueOfParameter.replaceAll("%5E","\\^")
+		valueOfParameter = valueOfParameter.replaceAll("%7E","~")
+		valueOfParameter = valueOfParameter.replaceAll("%5B","\\[")
+		valueOfParameter = valueOfParameter.replaceAll("%5D","\\]")
+		valueOfParameter = valueOfParameter.replaceAll("%60","'")
+		valueOfParameter = valueOfParameter.replaceAll("%3B",";")
+		valueOfParameter = valueOfParameter.replaceAll("%2F","/")
+		valueOfParameter = valueOfParameter.replaceAll("%3F","\\?")
+		valueOfParameter = valueOfParameter.replaceAll("%3A",":")
+		valueOfParameter = valueOfParameter.replaceAll("%40","@")
+		valueOfParameter = valueOfParameter.replaceAll("%3D","=")//
+		valueOfParameter = valueOfParameter.replaceAll("%26","&")//
+		valueOfParameter = valueOfParameter.replaceAll("%24","\\\$")
+		return valueOfParameter
+	}
 	def getAllParameters(String url) {
 		String[] parameterValueList = url.split("&")
 		List<String> allParameter = new ArrayList<String>();
@@ -291,41 +316,48 @@ class ManzonAPI_helper {
 	public static boolean isValidParameterValue(String parameter,String value) {
 		if(parameter.equals("groupBy")) {
 			String[] groupByValues = [
-				"FAC",
-				"LOC",
-				"PRTECH",
-				"TECH",
-				"TECH",
-				"CTECH",
-				"SBE",
-				"SBE_1",
-				"SBE_2",
-				"MATERIAL",
-				"DEVICE",
-				"CHIP",
-				"FABLOT",
-				"LOT"
+				"fac",
+				"loc",
+				"prtech",
+				"tech",
+				"ctech",
+				"sbe",
+				"sbe_1",
+				"sbe_2",
+				"material",
+				"device",
+				"chip",
+				"fablot",
+				"lot"
 			]
-			return Arrays.asList(groupByValues).contains(value);
+			return Arrays.asList(groupByValues).contains(value.toLowerCase());
 		}else if(parameter.equals("area")) {
 			String[] areaValues = [
-				"TEST",
-				"ASSY",
-				"SORT",
-				"FAB"
+				"test",
+				"assy",
+				"sort",
+				"fab"
 			]
-			return Arrays.asList(areaValues).contains(value);
+			return Arrays.asList(areaValues).contains(value.toLowerCase());
 		}else if(parameter.equals("perspective")) {
-			String[] perspectiveValues = ["Fab", "AT"]
-			return Arrays.asList(perspectiveValues).contains(value);
+			String[] perspectiveValues = ["fab", "at"]
+			return Arrays.asList(perspectiveValues).contains(value.toLowerCase());
 		}else if(parameter.equals("local")) {
 			String[] localValues = ["dallas", "local"]
-			return Arrays.asList(localValues).contains(value);
+			return Arrays.asList(localValues).contains(value.toLowerCase());
 		}else if(parameter.equals("tranDate")) {
-			String[] localValues = ["L90D", "L30D","LM","LQ","MTD","QTD","YTD"]
+			String[] localValues = [
+				"l90d",
+				"l30d",
+				"lm",
+				"lq",
+				"mtd",
+				"qtd",
+				"ytd"
+			]
 			if(value.length()<=4) {
-				return Arrays.asList(localValues).contains(value);
-			}else {//check if valid date format		
+				return Arrays.asList(localValues).contains(value.toLowerCase());
+			}else {//check if valid date format
 				String[] dates = value.split("-")
 				if(dates.size()==2) {
 					boolean errorFound = false
@@ -343,11 +375,10 @@ class ManzonAPI_helper {
 				}else {
 					return false
 				}
-				
+
 			}
-			
+
 		}
-		//String[] tranDateValues = ["",""]
 
 	}
 	public static boolean isValidTimeFormat(String format, String value) {
@@ -408,52 +439,52 @@ class ManzonAPI_helper {
 				verifyTranDateUi(url)
 				break;
 			case "fabLocation":
-				verifyFabLocationUi()
+				verifyFabLocationUi(url)
 				break;
 			case "fabFacility":
-				verifyFabFacilityUi()
+				verifyFabFacilityUi(url)
 				break;
 			case "probeLocation":
-				verifyProbeLocationUi()
+				verifyProbeLocationUi(url)
 				break;
 			case "probeFacility":
-				verifyProbeFacilityUi()
+				verifyProbeFacilityUi(url)
 				break;
 			case "prtech":
-				verifyPrtechUi()
+				verifyPrtechUi(url)
 				break;
 			case "tech":
-				verifyTechUi()
+				verifyTechUi(url)
 				break;
 			case "ctech":
-				verifyCtechUi()
+				verifyCtechUi(url)
 				break;
 			case "sbe":
-				verifySbeUi()
+				verifySbeUi(url)
 				break;
 			case "sbe1":
-				verifySbe1Ui()
+				verifySbe1Ui(url)
 				break;
 			case "sbe2":
-				verifySbe2Ui()
+				verifySbe2Ui(url)
 				break;
 			case "device":
-				verifyDeviceUi()
+				verifyDeviceUi(url)
 				break;
 			case "material":
-				verifyMaterialUi()
+				verifyMaterialUi(url)
 				break;
 			case "chipname":
-				verifyChipnameUi()
+				verifyChipnameUi(url)
 				break;
 			case "fablot":
-				verifyFablotUi()
+				verifyFablotUi(url)
 				break;
 			case "lot":
-				verifyLotUi()
+				verifyLotUi(url)
 				break;
 			case "columns":
-				verifyColumnsUi()
+				verifyColumnsUi(url)
 				break;
 		}
 	}
@@ -470,17 +501,17 @@ class ManzonAPI_helper {
 		switch(parameterValue) {
 			case "test" :
 				(mainTitle.contains("test")) ?  KeywordUtil.markPassed("PASSED: Verified area."):KeywordUtil.markWarning("ERROR: area value does not match.")
-			break;
+				break;
 			case "assy" :
 				(mainTitle.contains("assembly")) ?  KeywordUtil.markPassed("PASSED: Verified area."):KeywordUtil.markWarning("ERROR: area value does not match.")
-			break;
+				break;
 			case "sort" :
 				(mainTitle.contains("probe")) ?  KeywordUtil.markPassed("PASSED: Verified area."):KeywordUtil.markWarning("ERROR: area value does not match.")
-			break;
+				break;
 			case "fab" :
 				(mainTitle.contains("fab")) ?  KeywordUtil.markPassed("PASSED: Verified area."):KeywordUtil.markWarning("ERROR: area value does not match.")
-			break;
-			
+				break;
+
 		}
 
 	}
@@ -497,7 +528,7 @@ class ManzonAPI_helper {
 					(mainTitle.contains("fab")) ? KeywordUtil.markWarning("ERROR: perspective value does not match."):KeywordUtil.markPassed("PASSED: Verified perspective.")
 			}
 		}
-		
+
 	}
 	public boolean verifyLocalUi() {
 		//code for verifying local parameter
@@ -507,84 +538,238 @@ class ManzonAPI_helper {
 		//code for verifying tranDate parameter
 		String timeTitle = driver.findElement(By.xpath('//div[@id="time_title"]')).getText().toLowerCase() //(Timeframe : 2020-03-10 to 2020-06-08)
 		String parameterValue = getValueOfParameter("tranDate",url).toLowerCase()
-		String[] dates = timeTitle.split(":")[1].split("to")
+		String[] timeFrame = timeTitle.split(":")[1].split("to")
+		String startDate = timeFrame[0].trim().substring(0,10)
+		String endDate = timeFrame[1].trim().substring(0,10)
+		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd");
+		String currentDate = LocalDateTime.now().toString().split("T")[0]
+		String valueOfTranDate = getValueOfParameter("tranDate", url).toLowerCase()
+
+		switch(valueOfTranDate) {
+			case "l90d":
+				int daysDiff = solveTimeDuration(startDate,endDate)[0]
+				println(daysDiff)
+				if(daysDiff>=89 && daysDiff<=91) {
+					KeywordUtil.markPassed("PASSED: Verified timeframe value of Last 90 days.")
+				}else {
+					KeywordUtil.markWarning("FAILED: Invalid timeframe value of last 90 days.")
+				}
+				break;
+			case "l30d":
+				int daysDiff = solveTimeDuration(startDate,endDate)[0]
+				if(daysDiff>=29 && daysDiff<=31) {
+					KeywordUtil.markPassed("PASSED: Verified timeframe value of Last 30 days.")
+				}else {
+					KeywordUtil.markWarning("FAILED: Invalid timeframe value of last 30 days.")
+				}
+				break;
+			case "lm":
+				int monthDiff = solveTimeDuration(startDate,currentDate)[1]
+				if(monthDiff==1) {
+					KeywordUtil.markPassed("PASSED: Verified timeframe value of Last month.")
+				}else {
+					KeywordUtil.markWarning("FAILED: Invalid timeframe value of last month.")
+				}
+				break;
+			case "lq":
+					int expectedStartMonth,expectedEndMonth
+				if(LocalDateTime.now().getMonthValue()==1 || LocalDateTime.now().getMonthValue()==2 || LocalDateTime.now().getMonthValue()==3) {
+					expectedStartMonth=10;expectedEndMonth=12
+				}else if(LocalDateTime.now().getMonthValue()==4 || LocalDateTime.now().getMonthValue()==5 || LocalDateTime.now().getMonthValue()==6) {
+					expectedStartMonth=1;expectedEndMonth=3
+				}else if(LocalDateTime.now().getMonthValue()==7 || LocalDateTime.now().getMonthValue()==8 || LocalDateTime.now().getMonthValue()==9) {
+					expectedStartMonth=4;expectedEndMonth=6
+				}else if(LocalDateTime.now().getMonthValue()==10 || LocalDateTime.now().getMonthValue()==11 || LocalDateTime.now().getMonthValue()==12) {
+					expectedStartMonth=7;expectedEndMonth=9
+				}
+
+				if(Integer.parseInt(startDate.split("-")[1])==expectedStartMonth && Integer.parseInt(endDate.split("-")[1])==expectedEndMonth) {
+					KeywordUtil.markPassed("PASSED: Verified timeframe value of Last quarter.")
+				}else {
+					KeywordUtil.markWarning("FAILED: Invalid timeframe value of last quarter.")
+				}
+				break;
+			case "mtd":
+				if(startDate.split("-")[1]==currentDate.split("-")[1] && Integer.parseInt(startDate.split("-")[2])==1 &&
+				endDate.split("-")[1]==currentDate.split("-")[1] &&endDate.split("-")[2]==currentDate.split("-")[2]) {
+					KeywordUtil.markPassed("PASSED: Verified timeframe value of Month to date.")
+				}else {
+					KeywordUtil.markWarning("FAILED: Invalid timeframe value of Month to date.")
+				}
+				break;
+			case "qtd":
+					int expectedMonth,expectedDay
+				if(LocalDateTime.now().getMonthValue()==1 || LocalDateTime.now().getMonthValue()==2 || LocalDateTime.now().getMonthValue()==3) {
+					expectedMonth=1;expectedDay=1;
+				}else if(LocalDateTime.now().getMonthValue()==4 || LocalDateTime.now().getMonthValue()==5 || LocalDateTime.now().getMonthValue()==6) {
+					expectedMonth=4;expectedDay=1;
+				}else if(LocalDateTime.now().getMonthValue()==7 || LocalDateTime.now().getMonthValue()==8 || LocalDateTime.now().getMonthValue()==9) {
+					expectedMonth=7;expectedDay=1;
+				}else if(LocalDateTime.now().getMonthValue()==10 || LocalDateTime.now().getMonthValue()==11 || LocalDateTime.now().getMonthValue()==12) {
+					expectedMonth=10;expectedDay=1;
+				}
+
+				if(Integer.parseInt(startDate.split("-")[1])==expectedMonth && Integer.parseInt(startDate.split("-")[2])==expectedDay &&
+				endDate.split("-")[1]==currentDate.split("-")[1] && endDate.split("-")[2]==currentDate.split("-")[2] ) {
+					KeywordUtil.markPassed("PASSED: Verified timeframe value of Quarter to date.")
+				}else {
+					KeywordUtil.markWarning("FAILED: Invalid timeframe value of Quarter to date.")
+				}
+				break;
+			case "ytd":
+				if(startDate.split("-")[0]==currentDate.split("-")[0] && Integer.parseInt(startDate.split("-")[1])==1 &&Integer.parseInt(startDate.split("-")[2])==1 &&
+				endDate.split("-")[0]==currentDate.split("-")[0] && endDate.split("-")[1]==currentDate.split("-")[1] && endDate.split("-")[2]==currentDate.split("-")[2] ) {
+					KeywordUtil.markPassed("PASSED: Verified timeframe value of Year to date.")
+				}else {
+					KeywordUtil.markWarning("FAILED: Invalid timeframe value of Year to date.")
+				}
+				break;
+			default:
+				if(valueOfTranDate.split("-")[0].equals(startDate.replaceAll("-", "")) & valueOfTranDate.split("-")[1].equals(endDate.replaceAll("-", ""))) {
+					KeywordUtil.markPassed("PASSED: Verified timeframe value of yyyyMMdd-yyyyMMdd.")
+				}else {
+					KeywordUtil.markWarning("FAILED: Invalid timeframe value of yyyyMMdd-yyyyMMdd.")
+				}
+		}
+
+	}
+	def solveTimeDuration(startDate,endDate) {
 		final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-		String startDate = dates[0].trim().substring(0,10)
-		String endDate = dates[1].trim().substring(0,10)
-		println(startDate)
-		println(endDate)
 		LocalDate firstDate = LocalDate.parse(startDate, formatter);
 		LocalDate secondDate = LocalDate.parse(endDate, formatter);
 		long days = ChronoUnit.DAYS.between(firstDate, secondDate);
 		long months = ChronoUnit.MONTHS.between(firstDate, secondDate);
 		System.out.println("Days between: " + days);
 		System.out.println("Months between: " + months);
-		
+		return [days, months]
 	}
-	public boolean verifyFabLocationUi() {
-		//code for verifying fabLocation parameter
-		System.out.println("Verified fabLocation")
+	public boolean verifyFabLocationUi(url) {
+		boolean errorFound = false
+		String parameterValue = getValueOfParameter("fabLocation",url).toLowerCase()
+		List <WebElement> multipleFilter = driver.findElements(By.xpath('//div[@id="filter_title"]/a')) 
+		if(multipleFilter.size() == 0) {//no multiple filter
+			String filterTitle = driver.findElement(By.xpath('//div[@id="filter_title"]')).getText().toLowerCase()
+			(!filterTitle.contains(undoEscapeCode(parameterValue))) ? errorFound=true:""
+		}else {
+			(checkMultipleFilter(parameterValue)) ? "":(errorFound=true)
+		}
+		(!errorFound) ? KeywordUtil.markPassed("PASSED: Verified fabLocation Ui."):KeywordUtil.markWarning("Failed: Does not match fabLocation Ui.")
 	}
-	public boolean verifyFabFacilityUi() {
+	public boolean verifyFabFacilityUi(url) {
 		//code for verifying fabFacility parameter
 		System.out.println("Verified fabFacility")
 	}
-	public boolean verifyProbeLocationUi() {
+	public boolean verifyProbeLocationUi(url) {
 		//code for verifying probeLocation parameter
 		System.out.println("Verified probeLocation")
 	}
-	public boolean verifyProbeFacilityUi() {
+	public boolean verifyProbeFacilityUi(url) {
 		//code for verifying probeFacility parameter
 		System.out.println("Verified probeFacility")
 	}
-	public boolean verifyPrtechUi() {
+	public boolean verifyPrtechUi(url) {
 		//code for verifying prtech parameter
 		System.out.println("Verified prtech")
 	}
-	public boolean verifyTechUi() {
+	public boolean verifyTechUi(url) {
 		//code for verifying tech parameter
 		System.out.println("Verified tech")
 	}
-	public boolean verifyCtechUi() {
+	public boolean verifyCtechUi(url) {
 		//code for verifying ctech parameter
 		System.out.println("Verified ctech")
 	}
-	public boolean verifySbeUi() {
-		//code for verifying sbe parameter
-		System.out.println("Verified sbe")
+	public boolean verifySbeUi(url) {
+		boolean errorFound = false
+		String parameterValue = getValueOfParameter("sbe",url).toLowerCase()
+		List <WebElement> multipleFilter = driver.findElements(By.xpath('//div[@id="filter_title"]/a'))
+		if(multipleFilter.size() == 0) {//no multiple filter
+			String filterTitle = driver.findElement(By.xpath('//div[@id="filter_title"]')).getText().toLowerCase()
+			(!filterTitle.contains(undoEscapeCode(parameterValue))) ? errorFound=true:""
+		}else {
+			(checkMultipleFilter(parameterValue)) ? "":(errorFound=true)
+		}
+		(!errorFound) ? KeywordUtil.markPassed("PASSED: Verified sbe Ui."):KeywordUtil.markWarning("Failed: Does not match sbe Ui.")
 	}
-	public boolean verifySbe1Ui() {
+	public boolean verifySbe1Ui(url) {
 		//code for verifying sbe1 parameter
 		System.out.println("Verified sbe1")
 	}
-	public boolean verifySbe2Ui() {
+	public boolean verifySbe2Ui(url) {
 		//code for verifying sbe2 parameter
 		System.out.println("Verified sbe2")
 	}
-	public boolean verifyDeviceUi() {
+	public boolean verifyDeviceUi(url) {
 		//code for verifying device parameter
 		System.out.println("Verified device")
 	}
-	public boolean verifyMaterialUi() {
+	public boolean verifyMaterialUi(url) {
 		//code for verifying material parameter
 		System.out.println("Verified material")
 	}
-	public boolean verifyChipnameUi() {
+	public boolean verifyChipnameUi(url) {
 		//code for verifying chipname parameter
 		System.out.println("Verified chipname")
 	}
-	public boolean verifyFablotUi() {
+	public boolean verifyFablotUi(url) {
 		//code for verifying fablot parameter
 		System.out.println("Verified fablot")
 	}
-	public boolean verifyLotUi() {
+	public boolean verifyLotUi(url) {
 		//code for verifying lot parameter
 		System.out.println("Verified lot")
 	}
-	public boolean verifyColumnsUi() {
-		//code for verifying columns parameter
-		System.out.println("Verified columns")
+	public boolean verifyColumnsUi(url) {
+		boolean errorFound = false
+		String areaValue = getValueOfParameter("area",url)
+		String[] parameterValue = getValueOfParameter("columns",url).split(",")
+		List<WebElement> tableColumns = driver.findElements(By.xpath('//table/tbody/tr[2]/td/a'))
+		ArrayList<String> tableColumnsValues = new ArrayList<String>(0);
+		for(WebElement column : tableColumns) {
+			tableColumnsValues.add(column.getText())
+		}
+		
+		switch(areaValue.toLowerCase()) {
+			case "sort":
+				String sort = "FAB LOT,LOT,LOCAL LOT,DEVICE,MATERIAL,CHIP NAME,LOCAL DEVICE,LOCAL SPEC,PROCNAME,ROUTE,TECHNOLOGY,TECH,PRTECH,CTECH,SBE,SBE-1,SBE-2,FACILITY,FAB FACILITY,LOCATION,FAB LOCATION,CAL YEAR,CAL QTR,CAL MONTH,CAL WEEK,CAL DOW,CAL DOM,LOCAL YEAR,LOCAL QTR,LOCAL MONTH,LOCAL WEEK,LOCAL DOW,LOCAL DOM,TRAN DATE,LOCAL TIME,FMPY,WFR IN,WFR OUT,WFR LOSS,WFR YLD,DIE IN,DIE OUT,DIE LOSS,DIE YLD,NDPW,CPW,STD YLD,SCRAP COST"
+				for(int i=0; i<parameterValue.size(); i++) {
+					(tableColumnsValues.contains(sort.split(",")[Integer.parseInt(parameterValue[i])])) ? "":(errorFound=true)  
+				}
+				break;
+		}
+		
+		(!errorFound) ? KeywordUtil.markPassed("PASSED: Verified columns Ui."):KeywordUtil.markWarning("Failed: column not found in UI.")
+		
 	}
+	def checkColumnsAndIndexes(area,tableColumn) {
+		if(area=="test") {
+			
+		}else if(area=="assy") {
+		
+		}else if(area=="sort") {
+			String[] sort = ["FAB LOT","LOT","LOCAL LOT","DEVICE","MATERIAL","CHIP NAME","LOCAL DEVICE","LOCAL SPEC","PROCNAME","ROUTE","TECHNOLOGY","TECH","PRTECH","CTECH","SBE","SBE-1","SBE-2","FACILITY","FAB FACILITY","LOCATION","FAB LOCATION","CAL YEAR","CAL QTR","CAL MONTH","CAL WEEK","CAL DOW","CAL DOM","LOCAL YEAR","LOCAL QTR","LOCAL MONTH","LOCAL WEEK","LOCAL DOW","LOCAL DOM","TRAN DATE","LOCAL TIM ","FMPY","WFR IN","WFR OUT","WFR LOSS","WFR YLD","DIE IN","DIE OUT","DIE LOSS","DIE YLD","NDPW","CPW","STD YLD","SCRAP COST"]
+			return Arrays.asList(sort).contains(tableColumn);
+		}else if(area=="fab") {
+		
+		}
+//		
+//		String[] test = ["FAB LOT","LOT","LOCAL LOT","DEVICE","MATERIAL","CHIP NAME","LOCAL DEVICE","LOCAL SPEC","PROCNAME","ROUTE","TECHNOLOGY","TECH","PRTECH","CTECH","SBE","SBE_1","SBE_2","FACILITY","FAB FACILITY","LOCATION","FAB LOCATION","CAL YEAR","CAL QTR","CAL MONTH","CAL WEEK","CAL DOW","CAL DOM","LOCAL YEAR","LOCAL QTR","LOCAL MONTH","LOCAL WEEK","LOCAL DOW","LOCAL DOM","TRAN DATE","LOCAL TIME","TEST YLD","ATY","CWATY","TEST IN","TEST OUT","TEST LOSS"]
+//		String[] assy = ["FAB LOT","LOT","LOCAL LOT","DEVICE","MATERIAL","CHIP NAME","LOCAL DEVICE","LOCAL SPEC","PROCNAME","ROUTE","TECHNOLOGY","TECH","PRTECH","CTECH","SBE","SBE-1","SBE-2","FACILITY","FAB FACILITY","LOCATION","FAB LOCATION","CAL YEAR","CAL QTR","CAL MONTH","CAL WEEK","CAL DOW","CAL DOM","LOCAL YEAR","LOCAL QTR","LOCAL MONTH","LOCAL WEEK","LOCAL DOW","LOCAL DOM","TRAN DATE","LOCAL TIME","ASSY YLD","ASSY IN","ASSY OUT","ASSY LOSS"]
+//		String[] fab = ["FAB LOT","LOT","LOCAL LOT","DEVICE","MATERIAL","CHIP NAME","LOCAL DEVICE","LOCAL SPEC","PROCNAME","ROUTE","TECHNOLOGY","TECH","PRTECH","CTECH","SBE","SBE-1","SBE-2","FACILITY","FAB_FACILITY","LOCATION","FAB LOCATION","CAL YEAR","CAL QTR","CAL MONTH","CAL WEEK","CAL DOW","CAL DOM","LOCAL YEAR","LOCAL QTR","LOCAL MONTH","LOCAL WEEK","LOCAL DOW","LOCAL DOM","TRAN DATE","LOCAL TIME","FAB YLD","BUMP YLD","WFR STARTS","WFR OUTS","WFR LOSS","CPW","STD YLD","SCRAP COST","BUMP IN","BUMP OUT","BUMP LOSS"]
+		
+		
+	}
+	
+	def checkMultipleFilter(values) {
+		driver.findElement(By.xpath('//div[@id="filter_title"]/a')).click() //open multiple filter table
+		List <WebElement> multipleFilterValues = driver.findElements(By.xpath('(//div[@id="popUpDiv"]/.//table)[2]/tbody/tr/td[2]'))
+		String[] parameterValues = values.split(",")
+		for(int i=1; i<multipleFilterValues.size(); i++) {
+			(Arrays.asList(parameterValues).contains(undoEscapeCode(multipleFilterValues[i].getText().toLowerCase()))) ? "":(return false) 
+		}
+		driver.findElement(By.xpath('//input[@value="Close"]')).click() //close multiple filter table		
+		return true
+	}	
 
 
 }
