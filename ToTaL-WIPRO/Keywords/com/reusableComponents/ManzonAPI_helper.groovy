@@ -87,7 +87,7 @@ class ManzonAPI_helper {
 		if( checkRequiredParameters(combination) && checkNonrequiredParameters(combination) ) {//
 			String finalURL = "http://dfwt-dev.itg.ti.com/ToTaL/drilldown?"+escapeValues
 			KeywordUtil.markPassed("PASSED: Valid URL. \""+finalURL+"\"")
-			openBrowser(finalURL)
+			//openBrowser(finalURL)
 			//UI checking
 			tableRows = driver.findElements(By.xpath('//div[@id="table_anchor"]/table/tbody/tr'))
 			List<String> allParameter = getAllParameters(finalURL.split("drilldown\\?")[1])
@@ -662,17 +662,27 @@ class ManzonAPI_helper {
 			String filterTitle = driver.findElement(By.xpath('//div[@id="filter_title"]')).getText().toLowerCase()
 			(!filterTitle.contains(undoEscapeCode(parameterValue))) ? errorFound=true:""
 		}else {
-			(checkMultipleFilter(parameterValue)) ? "":(errorFound=true)
+			driver.findElement(By.xpath('//div[@id="filter_title"]/a')).click() //open multiple filter table
+			List <WebElement> tableColumnValues = driver.findElements(By.xpath('(//div[@id="popUpDiv"]/.//table)[2]/tbody/tr/td[2]'))
+			String[] parameterValues = parameterValue.split(",")
+			List<String> tableValues = new ArrayList<String>()
+			for(int i=1; i<tableColumnValues.size(); i++) {
+				tableValues.add(tableColumnValues[i].getText().toLowerCase())
+			}
+			for(int j=0; j<parameterValues.size();j++) {
+				(tableValues.contains(parameterValues[j])) ? "":(errorFound=true)
+			}
+			driver.findElement(By.xpath('//input[@value="Close"]')).click() //close multiple filter table
 		}
-		(!errorFound) ? KeywordUtil.markPassed("PASSED: Verified ${parameter} Ui."):KeywordUtil.markWarning("Failed: Does not match ${parameter} Ui.")
-
+		
+		(!errorFound) ? KeywordUtil.markPassed("PASSED: Verified ${parameter} filter Ui."):KeywordUtil.markWarning("Failed: Does not match ${parameter} filter Ui.")
 	}
 	//	public boolean verifyFabFacilityUi(url) {
 	//		//code for verifying fabFacility parameter
 	//		System.out.println("Verified fabFacility")
 	//	}
 	//	public boolean verifyProbeLocationUi(url) {
-	//		//code for verifying probeLocation parameter
+	//		code for verifying probeLocation parameter
 	//		System.out.println("Verified probeLocation")
 	//	}
 	//	public boolean verifyProbeFacilityUi(url) {
@@ -789,13 +799,17 @@ class ManzonAPI_helper {
 
 	def checkMultipleFilter(values) {
 		driver.findElement(By.xpath('//div[@id="filter_title"]/a')).click() //open multiple filter table
+		boolean foundMatch = false;
 		List <WebElement> multipleFilterValues = driver.findElements(By.xpath('(//div[@id="popUpDiv"]/.//table)[2]/tbody/tr/td[2]'))
 		String[] parameterValues = values.split(",")
+		println("values::"+parameterValues)
 		for(int i=1; i<multipleFilterValues.size(); i++) {
-			(Arrays.asList(parameterValues).contains(undoEscapeCode(multipleFilterValues[i].getText().toLowerCase()))) ? "":(return false)
+			(Arrays.asList(parameterValues).contains(undoEscapeCode(multipleFilterValues[i].getText().toLowerCase()))) ? [break,foundMatch=true]:""
 		}
+		(!foundMatch) ? KeywordUtil.markWarning("FAILED: No filter found match."):KeywordUtil.markPassed("PASSED: Veri")
+		
 		driver.findElement(By.xpath('//input[@value="Close"]')).click() //close multiple filter table
-		return true
+
 	}
 
 
