@@ -31,14 +31,15 @@ import org.openqa.selenium.interactions.Actions as Actions
 import org.openqa.selenium.support.ui.WebDriverWait as WebDriverWait
 import org.openqa.selenium.support.ui.ExpectedConditions as ExpectedConditions
 
-//WebUI.callTestCase(findTestCase('Components/Login/Login'), [:], FailureHandling.STOP_ON_FAILURE)
+WebUI.callTestCase(findTestCase('Components/Login/Login'), [:], FailureHandling.STOP_ON_FAILURE)
 
 //WebDriver driver = DriverFactory.getWebDriver()
 //continue with already opened browser
-System.setProperty('webdriver.chrome.driver', 'C:\\Users\\x1047437\\Desktop\\Katalon_Studio_Windows_64-7.5.0\\Katalon_Studio_Windows_64-7.5.0\\configuration\\resources\\drivers\\chromedriver_win32\\chromedriver.exe')
-ChromeOptions options = new ChromeOptions()
-options.setExperimentalOption('debuggerAddress', 'localhost:9222')
-WebDriver driver = new ChromeDriver(options)
-DriverFactory.changeWebDriver(driver)
-CustomKeywords.'com.reusableComponents.ManzonAPI_helper.verifyURL'('https://dfwt-dev.itg.ti.com/ToTaL/drilldown?groupBy=LOC&area=SORT&perspective=Fab&tranDate=20190101-20200229&fabLocation=AMKORK4&sbe=ASC&columns=24,25')//20200101-20200229
+//System.setProperty('webdriver.chrome.driver', 'C:\\Users\\x1047437\\Desktop\\Katalon_Studio_Windows_64-7.5.0\\Katalon_Studio_Windows_64-7.5.0\\configuration\\resources\\drivers\\chromedriver_win32\\chromedriver.exe')
+//ChromeOptions options = new ChromeOptions()
+//options.setExperimentalOption('debuggerAddress', 'localhost:9222')
+//WebDriver driver = new ChromeDriver(options)
+
+//DriverFactory.changeWebDriver(driver)
+CustomKeywords.'com.reusableComponents.ManzonAPI_helper.verifyURL'('https://dfwt-dev.itg.ti.com/ToTaL/drilldown?groupBy=loc&area=sort&perspective=fab&tranDate=20190101-20200229&local=local&fabLocation=AMKORK4&sbe=ASC&columns=24,25,9')//20200101-20200229
 

@@ -87,14 +87,13 @@ class ManzonAPI_helper {
 		if( checkRequiredParameters(combination) && checkNonrequiredParameters(combination) ) {//
 			String finalURL = "http://dfwt-dev.itg.ti.com/ToTaL/drilldown?"+escapeValues
 			KeywordUtil.markPassed("PASSED: Valid URL. \""+finalURL+"\"")
-			//openBrowser(finalURL)
+			openBrowser(finalURL)
 			//UI checking
 			tableRows = driver.findElements(By.xpath('//div[@id="table_anchor"]/table/tbody/tr'))
 			List<String> allParameter = getAllParameters(finalURL.split("drilldown\\?")[1])
-			//for(int i=0; i<allParameter.size(); i++) {
-			verifyParameterUI("fabLocation",finalURL)
-			verifyParameterUI("columns",finalURL)
-			//}
+			for(int i=0; i<allParameter.size(); i++) {
+				verifyParameterUI(allParameter[i],finalURL)
+			}
 
 
 		}else {
@@ -120,34 +119,36 @@ class ManzonAPI_helper {
 		boolean columnsFound = false
 
 		for(String parameter:allParameters) {
-			if( isValidParameter(parameter) ) {
+			if( isValidParameter(parameter)  ) {
 				(parameter.equals("tranDate")) ? tranDateFound=true:""
 				(parameter.equals("columns")) ? columnsFound=true:""
-
-				if(escapeValues=="") {//escape
-					//System.out.println("value::"+getValueOfParameter(parameter,url))
-					escapeValues += parameter+"="+ escapeCode( getValueOfParameter(parameter,url) )
+				//check value of parameter before escaping
+				String value = getValueOfParameter(parameter,url)
+				if( value=="" || value.indexOf("*")>=0 ) { //null || wild card
+					errors.add("Null value or wild card is not allowed: \""+parameter+"="+value+"\"")
+				}
+				//				else {
+				//					KeywordUtil.markPassed("VERIFIED: Non-required parameter(${parameter}) found.")
+				//				}
+				if( parameter.equals("columns") ) {//wrong format || not found in predefined values
+					(verifiedColumns(value,getValueOfParameter("area",url))) ? "":errors.add("Invalid columns value: \""+value+"\"")
+				}
+				if(parameter.equals("tranDate")) {//wrong format || not found in predefined values
+					(isValidParameterValue("tranDate",value)) ? "":errors.add("Invalid tranDate value: \""+value+"\"")
+				}
+				//escape the value
+				if(escapeValues=="") {
+					escapeValues += parameter+"="+ escapeCode( value )
 				}else {
-					String value = getValueOfParameter(parameter,url)
-					if( value=="" || value.indexOf("*")>=0 ) { //
-						errors.add("Null value or wild card is not allowed: \""+parameter+"="+value+"\"")
-					}
-					if( parameter.equals("columns") ) {
-						(verifiedColumns(value,getValueOfParameter("area",url))) ? "":errors.add("Invalid columns value: \""+value+"\"")
-					}
-					if(parameter.equals("tranDate")) {//worng format || not found in predefined values
-						(isValidParameterValue("tranDate",value)) ? "":errors.add("Invalid tranDate value: \""+value+"\"")
-					}
-
 					escapeValues += "&"+parameter+"="+ escapeCode( value )
 				}
+
 
 			}else {
 				errors.add("Invalid parameter name: \""+parameter+"\"")
 				removedInvalidParameters.add(parameter)
 			}
 		}
-
 
 		if(!tranDateFound) {//if not found
 			allParameters.removeAll(removedInvalidParameters)
@@ -189,9 +190,6 @@ class ManzonAPI_helper {
 					case "fab":
 						(index<0 || index>45) ? errors.add("Value should be between 0 to 45 by FAB area. Index \""+index+"\" found."):""
 						break;
-					//					default:
-					//						System.out.println("error:areaValue not found")
-					//error
 				}
 			} catch (NumberFormatException nfe) {
 				errors.add("Not a valid integer value for columns parameter. \""+value+"\" found.")
@@ -311,7 +309,6 @@ class ManzonAPI_helper {
 		}else {
 			return true
 		}
-
 	}
 	public static boolean isValidParameterValue(String parameter,String value) {
 		if(parameter.equals("groupBy")) {
@@ -432,67 +429,71 @@ class ManzonAPI_helper {
 			case "perspective":
 				verifyPerspectiveUi(url)
 				break;
-			case "local"://
-				verifyLocalUi()
-				break;
 			case "tranDate":
 				verifyTranDateUi(url)
-				break;
-			case "fabLocation":
-				verifyFabLocationUi(url)
-				break;
-			case "fabFacility":
-				verifyFabFacilityUi(url)
-				break;
-			case "probeLocation":
-				verifyProbeLocationUi(url)
-				break;
-			case "probeFacility":
-				verifyProbeFacilityUi(url)
-				break;
-			case "prtech":
-				verifyPrtechUi(url)
-				break;
-			case "tech":
-				verifyTechUi(url)
-				break;
-			case "ctech":
-				verifyCtechUi(url)
-				break;
-			case "sbe":
-				verifySbeUi(url)
-				break;
-			case "sbe1":
-				verifySbe1Ui(url)
-				break;
-			case "sbe2":
-				verifySbe2Ui(url)
-				break;
-			case "device":
-				verifyDeviceUi(url)
-				break;
-			case "material":
-				verifyMaterialUi(url)
-				break;
-			case "chipname":
-				verifyChipnameUi(url)
-				break;
-			case "fablot":
-				verifyFablotUi(url)
-				break;
-			case "lot":
-				verifyLotUi(url)
 				break;
 			case "columns":
 				verifyColumnsUi(url)
 				break;
+			case "local":
+				println("verifying local parameter in UI...")
+				break;
+			default:
+				verifyNonRequiredUi(parameterName,url)
+
+//			case "fabLocation":
+//				verifyFabLocationUi(url)
+//				break;
+//			case "fabFacility":
+//				verifyFabFacilityUi(url)
+//				break;
+//			case "probeLocation":
+//				verifyProbeLocationUi(url)
+//				break;
+//			case "probeFacility":
+//				verifyProbeFacilityUi(url)
+//				break;
+//			case "prtech":
+//				verifyPrtechUi(url)
+//				break;
+//			case "tech":
+//				verifyTechUi(url)
+//				break;
+//			case "ctech":
+//				verifyCtechUi(url)
+//				break;
+//			case "sbe":
+//				verifySbeUi(url)
+//				break;
+//			case "sbe1":
+//				verifySbe1Ui(url)
+//				break;
+//			case "sbe2":
+//				verifySbe2Ui(url)
+//				break;
+//			case "device":
+//				verifyDeviceUi(url)
+//				break;
+//			case "material":
+//				verifyMaterialUi(url)
+//				break;
+//			case "chipname":
+//				verifyChipnameUi(url)
+//				break;
+//			case "fablot":
+//				verifyFablotUi(url)
+//				break;
+//			case "lot":
+//				verifyLotUi(url)
+//				break;
+
 		}
 	}
 	public boolean verifyGroupByUi(url) {
 		//code for verifying groupBy parameter
 		String mainTitle = driver.findElement(By.xpath('//div[@id="main_title"]')).getText().toLowerCase()
 		String parameterValue = getValueOfParameter("groupBy",url).toLowerCase()
-		(mainTitle.contains(parameterValue)) ? KeywordUtil.markPassed("PASSED: Verified groupBy."):KeywordUtil.markWarning("ERROR: groupBy value does not match.")
+		(mainTitle.contains(parameterValue)) ? KeywordUtil.markPassed("PASSED: Verified groupBy UI."):KeywordUtil.markWarning("ERROR: groupBy value does not match.")
 	}
 	public boolean verifyAreaUi(url) {
 		//code for verifying area parameter
@@ -500,20 +501,18 @@ class ManzonAPI_helper {
 		String parameterValue = getValueOfParameter("area",url).toLowerCase()
 		switch(parameterValue) {
 			case "test" :
-				(mainTitle.contains("test")) ?  KeywordUtil.markPassed("PASSED: Verified area."):KeywordUtil.markWarning("ERROR: area value does not match.")
+				(mainTitle.contains("test")) ?  KeywordUtil.markPassed("PASSED: Verified area UI."):KeywordUtil.markWarning("ERROR: area value does not match in UI.")
 				break;
 			case "assy" :
-				(mainTitle.contains("assembly")) ?  KeywordUtil.markPassed("PASSED: Verified area."):KeywordUtil.markWarning("ERROR: area value does not match.")
+				(mainTitle.contains("assembly")) ?  KeywordUtil.markPassed("PASSED: Verified area UI."):KeywordUtil.markWarning("ERROR: area value does not match in UI.")
 				break;
 			case "sort" :
-				(mainTitle.contains("probe")) ?  KeywordUtil.markPassed("PASSED: Verified area."):KeywordUtil.markWarning("ERROR: area value does not match.")
+				(mainTitle.contains("probe")) ?  KeywordUtil.markPassed("PASSED: Verified area UI."):KeywordUtil.markWarning("ERROR: area value does not match in UI.")
 				break;
 			case "fab" :
-				(mainTitle.contains("fab")) ?  KeywordUtil.markPassed("PASSED: Verified area."):KeywordUtil.markWarning("ERROR: area value does not match.")
+				(mainTitle.contains("fab")) ?  KeywordUtil.markPassed("PASSED: Verified area UI."):KeywordUtil.markWarning("ERROR: area value does not match in UI.")
 				break;
-
 		}
-
 	}
 	public boolean verifyPerspectiveUi(url) {
 		//code for verifying Perspective parameter
@@ -550,25 +549,25 @@ class ManzonAPI_helper {
 				int daysDiff = solveTimeDuration(startDate,endDate)[0]
 				println(daysDiff)
 				if(daysDiff>=89 && daysDiff<=91) {
-					KeywordUtil.markPassed("PASSED: Verified timeframe value of Last 90 days.")
+					KeywordUtil.markPassed("PASSED: Verified timeframe value of Last 90 days in UI.")
 				}else {
-					KeywordUtil.markWarning("FAILED: Invalid timeframe value of last 90 days.")
+					KeywordUtil.markWarning("FAILED: Invalid timeframe value of last 90 days in UI.")
 				}
 				break;
 			case "l30d":
 				int daysDiff = solveTimeDuration(startDate,endDate)[0]
 				if(daysDiff>=29 && daysDiff<=31) {
-					KeywordUtil.markPassed("PASSED: Verified timeframe value of Last 30 days.")
+					KeywordUtil.markPassed("PASSED: Verified timeframe value of Last 30 days in UI.")
 				}else {
-					KeywordUtil.markWarning("FAILED: Invalid timeframe value of last 30 days.")
+					KeywordUtil.markWarning("FAILED: Invalid timeframe value of last 30 days in UI.")
 				}
 				break;
 			case "lm":
 				int monthDiff = solveTimeDuration(startDate,currentDate)[1]
 				if(monthDiff==1) {
-					KeywordUtil.markPassed("PASSED: Verified timeframe value of Last month.")
+					KeywordUtil.markPassed("PASSED: Verified timeframe value of Last month in UI.")
 				}else {
-					KeywordUtil.markWarning("FAILED: Invalid timeframe value of last month.")
+					KeywordUtil.markWarning("FAILED: Invalid timeframe value of last month in UI.")
 				}
 				break;
 			case "lq":
@@ -584,17 +583,17 @@ class ManzonAPI_helper {
 				}
 
 				if(Integer.parseInt(startDate.split("-")[1])==expectedStartMonth && Integer.parseInt(endDate.split("-")[1])==expectedEndMonth) {
-					KeywordUtil.markPassed("PASSED: Verified timeframe value of Last quarter.")
+					KeywordUtil.markPassed("PASSED: Verified timeframe value of Last quarter in UI.")
 				}else {
-					KeywordUtil.markWarning("FAILED: Invalid timeframe value of last quarter.")
+					KeywordUtil.markWarning("FAILED: Invalid timeframe value of last quarter in UI.")
 				}
 				break;
 			case "mtd":
 				if(startDate.split("-")[1]==currentDate.split("-")[1] && Integer.parseInt(startDate.split("-")[2])==1 &&
 				endDate.split("-")[1]==currentDate.split("-")[1] &&endDate.split("-")[2]==currentDate.split("-")[2]) {
-					KeywordUtil.markPassed("PASSED: Verified timeframe value of Month to date.")
+					KeywordUtil.markPassed("PASSED: Verified timeframe value of Month to date in UI.")
 				}else {
-					KeywordUtil.markWarning("FAILED: Invalid timeframe value of Month to date.")
+					KeywordUtil.markWarning("FAILED: Invalid timeframe value of Month to date in UI.")
 				}
 				break;
 			case "qtd":
@@ -611,24 +610,24 @@ class ManzonAPI_helper {
 
 				if(Integer.parseInt(startDate.split("-")[1])==expectedMonth && Integer.parseInt(startDate.split("-")[2])==expectedDay &&
 				endDate.split("-")[1]==currentDate.split("-")[1] && endDate.split("-")[2]==currentDate.split("-")[2] ) {
-					KeywordUtil.markPassed("PASSED: Verified timeframe value of Quarter to date.")
+					KeywordUtil.markPassed("PASSED: Verified timeframe value of Quarter to date in UI.")
 				}else {
-					KeywordUtil.markWarning("FAILED: Invalid timeframe value of Quarter to date.")
+					KeywordUtil.markWarning("FAILED: Invalid timeframe value of Quarter to date in UI.")
 				}
 				break;
 			case "ytd":
 				if(startDate.split("-")[0]==currentDate.split("-")[0] && Integer.parseInt(startDate.split("-")[1])==1 &&Integer.parseInt(startDate.split("-")[2])==1 &&
 				endDate.split("-")[0]==currentDate.split("-")[0] && endDate.split("-")[1]==currentDate.split("-")[1] && endDate.split("-")[2]==currentDate.split("-")[2] ) {
-					KeywordUtil.markPassed("PASSED: Verified timeframe value of Year to date.")
+					KeywordUtil.markPassed("PASSED: Verified timeframe value of Year to date in UI.")
 				}else {
-					KeywordUtil.markWarning("FAILED: Invalid timeframe value of Year to date.")
+					KeywordUtil.markWarning("FAILED: Invalid timeframe value of Year to date in UI.")
 				}
 				break;
 			default:
 				if(valueOfTranDate.split("-")[0].equals(startDate.replaceAll("-", "")) & valueOfTranDate.split("-")[1].equals(endDate.replaceAll("-", ""))) {
-					KeywordUtil.markPassed("PASSED: Verified timeframe value of yyyyMMdd-yyyyMMdd.")
+					KeywordUtil.markPassed("PASSED: Verified timeframe value of yyyyMMdd-yyyyMMdd in UI.")
 				}else {
-					KeywordUtil.markWarning("FAILED: Invalid timeframe value of yyyyMMdd-yyyyMMdd.")
+					KeywordUtil.markWarning("FAILED: Invalid timeframe value of yyyyMMdd-yyyyMMdd in UI.")
 				}
 		}
 
@@ -643,45 +642,21 @@ class ManzonAPI_helper {
 		System.out.println("Months between: " + months);
 		return [days, months]
 	}
-	public boolean verifyFabLocationUi(url) {
+	//	public boolean verifyFabLocationUi(url) {
+	//		boolean errorFound = false
+	//		String parameterValue = getValueOfParameter("fabLocation",url).toLowerCase()
+	//		List <WebElement> multipleFilter = driver.findElements(By.xpath('//div[@id="filter_title"]/a'))
+	//		if(multipleFilter.size() == 0) {//no multiple filter
+	//			String filterTitle = driver.findElement(By.xpath('//div[@id="filter_title"]')).getText().toLowerCase()
+	//			(!filterTitle.contains(undoEscapeCode(parameterValue))) ? errorFound=true:""
+	//		}else {
+	//			(checkMultipleFilter(parameterValue)) ? "":(errorFound=true)
+	//		}
+	//		(!errorFound) ? KeywordUtil.markPassed("PASSED: Verified fabLocation Ui."):KeywordUtil.markWarning("Failed: Does not match fabLocation Ui.")
+	//	}
+	public boolean verifyNonRequiredUi(parameter,url) {
 		boolean errorFound = false
-		String parameterValue = getValueOfParameter("fabLocation",url).toLowerCase()
-		List <WebElement> multipleFilter = driver.findElements(By.xpath('//div[@id="filter_title"]/a')) 
-		if(multipleFilter.size() == 0) {//no multiple filter
-			String filterTitle = driver.findElement(By.xpath('//div[@id="filter_title"]')).getText().toLowerCase()
-			(!filterTitle.contains(undoEscapeCode(parameterValue))) ? errorFound=true:""
-		}else {
-			(checkMultipleFilter(parameterValue)) ? "":(errorFound=true)
-		}
-		(!errorFound) ? KeywordUtil.markPassed("PASSED: Verified fabLocation Ui."):KeywordUtil.markWarning("Failed: Does not match fabLocation Ui.")
-	}
-	public boolean verifyFabFacilityUi(url) {
-		//code for verifying fabFacility parameter
-		System.out.println("Verified fabFacility")
-	}
-	public boolean verifyProbeLocationUi(url) {
-		//code for verifying probeLocation parameter
-		System.out.println("Verified probeLocation")
-	}
-	public boolean verifyProbeFacilityUi(url) {
-		//code for verifying probeFacility parameter
-		System.out.println("Verified probeFacility")
-	}
-	public boolean verifyPrtechUi(url) {
-		//code for verifying prtech parameter
-		System.out.println("Verified prtech")
-	}
-	public boolean verifyTechUi(url) {
-		//code for verifying tech parameter
-		System.out.println("Verified tech")
-	}
-	public boolean verifyCtechUi(url) {
-		//code for verifying ctech parameter
-		System.out.println("Verified ctech")
-	}
-	public boolean verifySbeUi(url) {
-		boolean errorFound = false
-		String parameterValue = getValueOfParameter("sbe",url).toLowerCase()
+		String parameterValue = getValueOfParameter(parameter,url).toLowerCase()
 		List <WebElement> multipleFilter = driver.findElements(By.xpath('//div[@id="filter_title"]/a'))
 		if(multipleFilter.size() == 0) {//no multiple filter
 			String filterTitle = driver.findElement(By.xpath('//div[@id="filter_title"]')).getText().toLowerCase()
@@ -689,36 +664,73 @@ class ManzonAPI_helper {
 		}else {
 			(checkMultipleFilter(parameterValue)) ? "":(errorFound=true)
 		}
-		(!errorFound) ? KeywordUtil.markPassed("PASSED: Verified sbe Ui."):KeywordUtil.markWarning("Failed: Does not match sbe Ui.")
+		(!errorFound) ? KeywordUtil.markPassed("PASSED: Verified ${parameter} Ui."):KeywordUtil.markWarning("Failed: Does not match ${parameter} Ui.")
+
 	}
-	public boolean verifySbe1Ui(url) {
-		//code for verifying sbe1 parameter
-		System.out.println("Verified sbe1")
-	}
-	public boolean verifySbe2Ui(url) {
-		//code for verifying sbe2 parameter
-		System.out.println("Verified sbe2")
-	}
-	public boolean verifyDeviceUi(url) {
-		//code for verifying device parameter
-		System.out.println("Verified device")
-	}
-	public boolean verifyMaterialUi(url) {
-		//code for verifying material parameter
-		System.out.println("Verified material")
-	}
-	public boolean verifyChipnameUi(url) {
-		//code for verifying chipname parameter
-		System.out.println("Verified chipname")
-	}
-	public boolean verifyFablotUi(url) {
-		//code for verifying fablot parameter
-		System.out.println("Verified fablot")
-	}
-	public boolean verifyLotUi(url) {
-		//code for verifying lot parameter
-		System.out.println("Verified lot")
-	}
+	//	public boolean verifyFabFacilityUi(url) {
+	//		//code for verifying fabFacility parameter
+	//		System.out.println("Verified fabFacility")
+	//	}
+	//	public boolean verifyProbeLocationUi(url) {
+	//		//code for verifying probeLocation parameter
+	//		System.out.println("Verified probeLocation")
+	//	}
+	//	public boolean verifyProbeFacilityUi(url) {
+	//		//code for verifying probeFacility parameter
+	//		System.out.println("Verified probeFacility")
+	//	}
+	//	public boolean verifyPrtechUi(url) {
+	//		//code for verifying prtech parameter
+	//		System.out.println("Verified prtech")
+	//	}
+	//	public boolean verifyTechUi(url) {
+	//		//code for verifying tech parameter
+	//		System.out.println("Verified tech")
+	//	}
+	//	public boolean verifyCtechUi(url) {
+	//		//code for verifying ctech parameter
+	//		System.out.println("Verified ctech")
+	//	}
+	//	public boolean verifySbeUi(url) {
+	//		boolean errorFound = false
+	//		String parameterValue = getValueOfParameter("sbe",url).toLowerCase()
+	//		List <WebElement> multipleFilter = driver.findElements(By.xpath('//div[@id="filter_title"]/a'))
+	//		if(multipleFilter.size() == 0) {//no multiple filter
+	//			String filterTitle = driver.findElement(By.xpath('//div[@id="filter_title"]')).getText().toLowerCase()
+	//			(!filterTitle.contains(undoEscapeCode(parameterValue))) ? errorFound=true:""
+	//		}else {
+	//			(checkMultipleFilter(parameterValue)) ? "":(errorFound=true)
+	//		}
+	//		(!errorFound) ? KeywordUtil.markPassed("PASSED: Verified sbe Ui."):KeywordUtil.markWarning("Failed: Does not match sbe Ui.")
+	//	}
+	//	public boolean verifySbe1Ui(url) {
+	//		//code for verifying sbe1 parameter
+	//		System.out.println("Verified sbe1")
+	//	}
+	//	public boolean verifySbe2Ui(url) {
+	//		//code for verifying sbe2 parameter
+	//		System.out.println("Verified sbe2")
+	//	}
+	//	public boolean verifyDeviceUi(url) {
+	//		//code for verifying device parameter
+	//		System.out.println("Verified device")
+	//	}
+	//	public boolean verifyMaterialUi(url) {
+	//		//code for verifying material parameter
+	//		System.out.println("Verified material")
+	//	}
+	//	public boolean verifyChipnameUi(url) {
+	//		//code for verifying chipname parameter
+	//		System.out.println("Verified chipname")
+	//	}
+	//	public boolean verifyFablotUi(url) {
+	//		//code for verifying fablot parameter
+	//		System.out.println("Verified fablot")
+	//	}
+	//	public boolean verifyLotUi(url) {
+	//		//code for verifying lot parameter
+	//		System.out.println("Verified lot")
+	//	}
 	public boolean verifyColumnsUi(url) {
 		boolean errorFound = false
 		String areaValue = getValueOfParameter("area",url)
@@ -728,48 +740,63 @@ class ManzonAPI_helper {
 		for(WebElement column : tableColumns) {
 			tableColumnsValues.add(column.getText())
 		}
-		
+
 		switch(areaValue.toLowerCase()) {
+			case "test" :
+				String test = "FAB LOT,LOT,LOCAL LOT,DEVICE,MATERIAL,CHIP NAME,LOCAL DEVICE,LOCAL SPEC,PROCNAME,ROUTE,TECHNOLOGY,TECH,PRTECH,CTECH,SBE,SBE_1,SBE_2,FACILITY,FAB FACILITY,LOCATION,FAB LOCATION,CAL YEAR,CAL QTR,CAL MONTH,CAL WEEK,CAL DOW,CAL DOM,LOCAL YEAR,LOCAL QTR,LOCAL MONTH,LOCAL WEEK,LOCAL DOW,LOCAL DOM,TRAN DATE,LOCAL TIME,TEST YLD,ATY,CWATY,TEST IN,TEST OUT,TEST LOSS"
+				for(int i=0; i<parameterValue.size(); i++) {
+					String target = test.split(",")[Integer.parseInt(parameterValue[i])]
+					(tableColumnsValues.contains(target)) ? "":[
+						errorFound=true,
+						KeywordUtil.markWarning("Index "+parameterValue[i]+"("+target+") of columns parameter not found.")
+					]
+				}
+				break;
 			case "sort":
 				String sort = "FAB LOT,LOT,LOCAL LOT,DEVICE,MATERIAL,CHIP NAME,LOCAL DEVICE,LOCAL SPEC,PROCNAME,ROUTE,TECHNOLOGY,TECH,PRTECH,CTECH,SBE,SBE-1,SBE-2,FACILITY,FAB FACILITY,LOCATION,FAB LOCATION,CAL YEAR,CAL QTR,CAL MONTH,CAL WEEK,CAL DOW,CAL DOM,LOCAL YEAR,LOCAL QTR,LOCAL MONTH,LOCAL WEEK,LOCAL DOW,LOCAL DOM,TRAN DATE,LOCAL TIME,FMPY,WFR IN,WFR OUT,WFR LOSS,WFR YLD,DIE IN,DIE OUT,DIE LOSS,DIE YLD,NDPW,CPW,STD YLD,SCRAP COST"
 				for(int i=0; i<parameterValue.size(); i++) {
-					(tableColumnsValues.contains(sort.split(",")[Integer.parseInt(parameterValue[i])])) ? "":(errorFound=true)  
+					String target = sort.split(",")[Integer.parseInt(parameterValue[i])]
+					(tableColumnsValues.contains(target)) ? "":[
+						errorFound=true,
+						KeywordUtil.markWarning("Index "+parameterValue[i]+"("+target+") of columns parameter not found.")]
+				}
+				break;
+			case "assy":
+				String assy = "FAB LOT,LOT,LOCAL LOT,DEVICE,MATERIAL,CHIP NAME,LOCAL DEVICE,LOCAL SPEC,PROCNAME,ROUTE,TECHNOLOGY,TECH,PRTECH,CTECH,SBE,SBE-1,SBE-2,FACILITY,FAB FACILITY,LOCATION,FAB LOCATION,CAL YEAR,CAL QTR,CAL MONTH,CAL WEEK,CAL DOW,CAL DOM,LOCAL YEAR,LOCAL QTR,LOCAL MONTH,LOCAL WEEK,LOCAL DOW,LOCAL DOM,TRAN DATE,LOCAL TIME,ASSY YLD,ASSY IN,ASSY OUT,ASSY LOSS"
+				for(int i=0; i<parameterValue.size(); i++) {
+					String target = assy.split(",")[Integer.parseInt(parameterValue[i])]
+					(tableColumnsValues.contains(target)) ? "":[
+						errorFound=true,
+						KeywordUtil.markWarning("Index "+parameterValue[i]+"("+target+") of columns parameter not found.")
+					]
+				}
+				break;
+			case "fab":
+				String fab = "FAB LOT,LOT,LOCAL LOT,DEVICE,MATERIAL,CHIP NAME,LOCAL DEVICE,LOCAL SPEC,PROCNAME,ROUTE,TECHNOLOGY,TECH,PRTECH,CTECH,SBE,SBE-1,SBE-2,FACILITY,FAB_FACILITY,LOCATION,FAB LOCATION,CAL YEAR,CAL QTR,CAL MONTH,CAL WEEK,CAL DOW,CAL DOM,LOCAL YEAR,LOCAL QTR,LOCAL MONTH,LOCAL WEEK,LOCAL DOW,LOCAL DOM,TRAN DATE,LOCAL TIME,FAB YLD,BUMP YLD,WFR STARTS,WFR OUTS,WFR LOSS,CPW,STD YLD,SCRAP COST,BUMP IN,BUMP OUT,BUMP LOSS"
+				for(int i=0; i<parameterValue.size(); i++) {
+					String target = fab.split(",")[Integer.parseInt(parameterValue[i])]
+					(tableColumnsValues.contains(target)) ? "":[
+						errorFound=true,
+						KeywordUtil.markWarning("Index "+parameterValue[i]+"("+target+") of columns parameter not found.")
+					]
 				}
 				break;
 		}
-		
-		(!errorFound) ? KeywordUtil.markPassed("PASSED: Verified columns Ui."):KeywordUtil.markWarning("Failed: column not found in UI.")
-		
+
+		(!errorFound) ? KeywordUtil.markPassed("PASSED: Verified columns Ui."):KeywordUtil.markWarning("FAILED: column not found in UI.")
+
 	}
-	def checkColumnsAndIndexes(area,tableColumn) {
-		if(area=="test") {
-			
-		}else if(area=="assy") {
-		
-		}else if(area=="sort") {
-			String[] sort = ["FAB LOT","LOT","LOCAL LOT","DEVICE","MATERIAL","CHIP NAME","LOCAL DEVICE","LOCAL SPEC","PROCNAME","ROUTE","TECHNOLOGY","TECH","PRTECH","CTECH","SBE","SBE-1","SBE-2","FACILITY","FAB FACILITY","LOCATION","FAB LOCATION","CAL YEAR","CAL QTR","CAL MONTH","CAL WEEK","CAL DOW","CAL DOM","LOCAL YEAR","LOCAL QTR","LOCAL MONTH","LOCAL WEEK","LOCAL DOW","LOCAL DOM","TRAN DATE","LOCAL TIM ","FMPY","WFR IN","WFR OUT","WFR LOSS","WFR YLD","DIE IN","DIE OUT","DIE LOSS","DIE YLD","NDPW","CPW","STD YLD","SCRAP COST"]
-			return Arrays.asList(sort).contains(tableColumn);
-		}else if(area=="fab") {
-		
-		}
-//		
-//		String[] test = ["FAB LOT","LOT","LOCAL LOT","DEVICE","MATERIAL","CHIP NAME","LOCAL DEVICE","LOCAL SPEC","PROCNAME","ROUTE","TECHNOLOGY","TECH","PRTECH","CTECH","SBE","SBE_1","SBE_2","FACILITY","FAB FACILITY","LOCATION","FAB LOCATION","CAL YEAR","CAL QTR","CAL MONTH","CAL WEEK","CAL DOW","CAL DOM","LOCAL YEAR","LOCAL QTR","LOCAL MONTH","LOCAL WEEK","LOCAL DOW","LOCAL DOM","TRAN DATE","LOCAL TIME","TEST YLD","ATY","CWATY","TEST IN","TEST OUT","TEST LOSS"]
-//		String[] assy = ["FAB LOT","LOT","LOCAL LOT","DEVICE","MATERIAL","CHIP NAME","LOCAL DEVICE","LOCAL SPEC","PROCNAME","ROUTE","TECHNOLOGY","TECH","PRTECH","CTECH","SBE","SBE-1","SBE-2","FACILITY","FAB FACILITY","LOCATION","FAB LOCATION","CAL YEAR","CAL QTR","CAL MONTH","CAL WEEK","CAL DOW","CAL DOM","LOCAL YEAR","LOCAL QTR","LOCAL MONTH","LOCAL WEEK","LOCAL DOW","LOCAL DOM","TRAN DATE","LOCAL TIME","ASSY YLD","ASSY IN","ASSY OUT","ASSY LOSS"]
-//		String[] fab = ["FAB LOT","LOT","LOCAL LOT","DEVICE","MATERIAL","CHIP NAME","LOCAL DEVICE","LOCAL SPEC","PROCNAME","ROUTE","TECHNOLOGY","TECH","PRTECH","CTECH","SBE","SBE-1","SBE-2","FACILITY","FAB_FACILITY","LOCATION","FAB LOCATION","CAL YEAR","CAL QTR","CAL MONTH","CAL WEEK","CAL DOW","CAL DOM","LOCAL YEAR","LOCAL QTR","LOCAL MONTH","LOCAL WEEK","LOCAL DOW","LOCAL DOM","TRAN DATE","LOCAL TIME","FAB YLD","BUMP YLD","WFR STARTS","WFR OUTS","WFR LOSS","CPW","STD YLD","SCRAP COST","BUMP IN","BUMP OUT","BUMP LOSS"]
-		
-		
-	}
-	
+
 	def checkMultipleFilter(values) {
 		driver.findElement(By.xpath('//div[@id="filter_title"]/a')).click() //open multiple filter table
 		List <WebElement> multipleFilterValues = driver.findElements(By.xpath('(//div[@id="popUpDiv"]/.//table)[2]/tbody/tr/td[2]'))
 		String[] parameterValues = values.split(",")
 		for(int i=1; i<multipleFilterValues.size(); i++) {
-			(Arrays.asList(parameterValues).contains(undoEscapeCode(multipleFilterValues[i].getText().toLowerCase()))) ? "":(return false) 
+			(Arrays.asList(parameterValues).contains(undoEscapeCode(multipleFilterValues[i].getText().toLowerCase()))) ? "":(return false)
 		}
-		driver.findElement(By.xpath('//input[@value="Close"]')).click() //close multiple filter table		
+		driver.findElement(By.xpath('//input[@value="Close"]')).click() //close multiple filter table
 		return true
-	}	
+	}
 
 
 }
