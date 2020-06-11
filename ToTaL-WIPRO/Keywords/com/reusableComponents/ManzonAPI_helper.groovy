@@ -63,7 +63,7 @@ class ManzonAPI_helper {
 
 		'Waits for ToTaL Page load for 60 seconds.'
 		WebUI.waitForPageLoad(60)
-		'Maximizes MST Page Window.\r\n'
+		'Maximizes ToTaL Page Window.\r\n'
 		WebUI.maximizeWindow()
 		'Inputs username in email input field.\r\n'
 		WebUI.setText(findTestObject('Login/email text field'), findTestData('data_table').getValue(2, 1))
@@ -74,28 +74,32 @@ class ManzonAPI_helper {
 		'Clicks Submit button.'
 		WebUI.click(findTestObject('Login/submit'))
 
-		'Waits for MST Page to load.'
+		'Waits for ToTaL Page to load.'
 		WebUI.waitForPageLoad(1800)
+		
+		WebUI.waitForElementNotPresent(findTestObject('loading'), 180)
 
-		'Verifies home title in MST Homepage.'
-		WebUI.waitForElementPresent(findTestObject('Login/home title'), 30)
+//		'Verifies home title in ToTaL Homepage.' 
+//		WebUI.waitForElementPresent(findTestObject('Login/home title'), 30)
+		
 	}
 	@Keyword
 	def verifyURL(String combination) {
-		//System.out.println(checkNonrequiredParameters("http://total.itg.ti.com/ToTaL/drilldown?groupBy=FAC&area=TEST&perspective=Fab&local=dallas&sbe1=BC JM,ASD&columns=-1,41, 10,24"))
-		//return
-		if( checkRequiredParameters(combination) && checkNonrequiredParameters(combination) ) {//
+		if( checkRequiredParameters(combination) && checkNonrequiredParameters(combination) ) {
 			String finalURL = "http://dfwt-dev.itg.ti.com/ToTaL/drilldown?"+escapeValues
 			KeywordUtil.markPassed("PASSED: Valid URL. \""+finalURL+"\"")
-			//openBrowser(finalURL)
+			openBrowser(finalURL)
 			//UI checking
-			tableRows = driver.findElements(By.xpath('//div[@id="table_anchor"]/table/tbody/tr'))
-			List<String> allParameter = getAllParameters(finalURL.split("drilldown\\?")[1])
-			for(int i=0; i<allParameter.size(); i++) {
-				verifyParameterUI(allParameter[i],finalURL)
+			List <WebElement> noDataResultFound = driver.findElements(By.xpath('//h3[text()="Sorry, No Data"]'))
+			if(noDataResultFound.size() == 0) {
+				tableRows = driver.findElements(By.xpath('//div[@id="table_anchor"]/table/tbody/tr'))
+				List<String> allParameter = getAllParameters(finalURL.split("drilldown\\?")[1])
+				for(int i=0; i<allParameter.size(); i++) {
+					verifyParameterUI(allParameter[i],finalURL)
+				}
+			}else {
+				KeywordUtil.markPassed("PASSED: No data found for a given URL.")
 			}
-
-
 		}else {
 			KeywordUtil.markFailedAndStop("ERROR: Invalid URL.")
 		}
@@ -127,9 +131,9 @@ class ManzonAPI_helper {
 				if( value=="" || value.indexOf("*")>=0 ) { //null || wild card
 					errors.add("Null value or wild card is not allowed: \""+parameter+"="+value+"\"")
 				}
-				//				else {
-				//					KeywordUtil.markPassed("VERIFIED: Non-required parameter(${parameter}) found.")
-				//				}
+//				else {
+//					KeywordUtil.markPassed("VERIFIED: Non-required parameter(${parameter}) found.")
+//				}
 				if( parameter.equals("columns") ) {//wrong format || not found in predefined values
 					(verifiedColumns(value,getValueOfParameter("area",url))) ? "":errors.add("Invalid columns value: \""+value+"\"")
 				}
@@ -142,15 +146,13 @@ class ManzonAPI_helper {
 				}else {
 					escapeValues += "&"+parameter+"="+ escapeCode( value )
 				}
-
-
 			}else {
 				errors.add("Invalid parameter name: \""+parameter+"\"")
 				removedInvalidParameters.add(parameter)
 			}
 		}
 
-		if(!tranDateFound) {//if not found
+		if(!tranDateFound) {//if no tranDate found
 			allParameters.removeAll(removedInvalidParameters)
 			ArrayList<String> requiredParameters = new ArrayList<String>( Arrays.asList("groupBy","area","perspective"));
 			allParameters.removeAll(requiredParameters)
@@ -441,51 +443,51 @@ class ManzonAPI_helper {
 			default:
 				verifyNonRequiredUi(parameterName,url)
 
-//			case "fabLocation":
-//				verifyFabLocationUi(url)
-//				break;
-//			case "fabFacility":
-//				verifyFabFacilityUi(url)
-//				break;
-//			case "probeLocation":
-//				verifyProbeLocationUi(url)
-//				break;
-//			case "probeFacility":
-//				verifyProbeFacilityUi(url)
-//				break;
-//			case "prtech":
-//				verifyPrtechUi(url)
-//				break;
-//			case "tech":
-//				verifyTechUi(url)
-//				break;
-//			case "ctech":
-//				verifyCtechUi(url)
-//				break;
-//			case "sbe":
-//				verifySbeUi(url)
-//				break;
-//			case "sbe1":
-//				verifySbe1Ui(url)
-//				break;
-//			case "sbe2":
-//				verifySbe2Ui(url)
-//				break;
-//			case "device":
-//				verifyDeviceUi(url)
-//				break;
-//			case "material":
-//				verifyMaterialUi(url)
-//				break;
-//			case "chipname":
-//				verifyChipnameUi(url)
-//				break;
-//			case "fablot":
-//				verifyFablotUi(url)
-//				break;
-//			case "lot":
-//				verifyLotUi(url)
-//				break;
+			//			case "fabLocation":
+			//				verifyFabLocationUi(url)
+			//				break;
+			//			case "fabFacility":
+			//				verifyFabFacilityUi(url)
+			//				break;
+			//			case "probeLocation":
+			//				verifyProbeLocationUi(url)
+			//				break;
+			//			case "probeFacility":
+			//				verifyProbeFacilityUi(url)
+			//				break;
+			//			case "prtech":
+			//				verifyPrtechUi(url)
+			//				break;
+			//			case "tech":
+			//				verifyTechUi(url)
+			//				break;
+			//			case "ctech":
+			//				verifyCtechUi(url)
+			//				break;
+			//			case "sbe":
+			//				verifySbeUi(url)
+			//				break;
+			//			case "sbe1":
+			//				verifySbe1Ui(url)
+			//				break;
+			//			case "sbe2":
+			//				verifySbe2Ui(url)
+			//				break;
+			//			case "device":
+			//				verifyDeviceUi(url)
+			//				break;
+			//			case "material":
+			//				verifyMaterialUi(url)
+			//				break;
+			//			case "chipname":
+			//				verifyChipnameUi(url)
+			//				break;
+			//			case "fablot":
+			//				verifyFablotUi(url)
+			//				break;
+			//			case "lot":
+			//				verifyLotUi(url)
+			//				break;
 
 		}
 	}
@@ -674,7 +676,7 @@ class ManzonAPI_helper {
 			}
 			driver.findElement(By.xpath('//input[@value="Close"]')).click() //close multiple filter table
 		}
-		
+
 		(!errorFound) ? KeywordUtil.markPassed("PASSED: Verified ${parameter} filter Ui."):KeywordUtil.markWarning("Failed: Does not match ${parameter} filter Ui.")
 	}
 	//	public boolean verifyFabFacilityUi(url) {
@@ -758,7 +760,7 @@ class ManzonAPI_helper {
 					String target = test.split(",")[Integer.parseInt(parameterValue[i])]
 					(tableColumnsValues.contains(target)) ? "":[
 						errorFound=true,
-						KeywordUtil.markWarning("Index "+parameterValue[i]+"("+target+") of columns parameter not found.")
+						KeywordUtil.markWarning("Index "+parameterValue[i]+"("+target+") of columns parameter not found in the table.")
 					]
 				}
 				break;
@@ -768,7 +770,8 @@ class ManzonAPI_helper {
 					String target = sort.split(",")[Integer.parseInt(parameterValue[i])]
 					(tableColumnsValues.contains(target)) ? "":[
 						errorFound=true,
-						KeywordUtil.markWarning("Index "+parameterValue[i]+"("+target+") of columns parameter not found.")]
+						KeywordUtil.markWarning("Index "+parameterValue[i]+"("+target+") of columns parameter not found in the table.")
+					]
 				}
 				break;
 			case "assy":
@@ -777,7 +780,7 @@ class ManzonAPI_helper {
 					String target = assy.split(",")[Integer.parseInt(parameterValue[i])]
 					(tableColumnsValues.contains(target)) ? "":[
 						errorFound=true,
-						KeywordUtil.markWarning("Index "+parameterValue[i]+"("+target+") of columns parameter not found.")
+						KeywordUtil.markWarning("Index "+parameterValue[i]+"("+target+") of columns parameter not found in the table.")
 					]
 				}
 				break;
@@ -787,30 +790,14 @@ class ManzonAPI_helper {
 					String target = fab.split(",")[Integer.parseInt(parameterValue[i])]
 					(tableColumnsValues.contains(target)) ? "":[
 						errorFound=true,
-						KeywordUtil.markWarning("Index "+parameterValue[i]+"("+target+") of columns parameter not found.")
+						KeywordUtil.markWarning("Index "+parameterValue[i]+"("+target+") of columns parameter not found in the table.")
 					]
 				}
 				break;
 		}
 
-		(!errorFound) ? KeywordUtil.markPassed("PASSED: Verified columns Ui."):KeywordUtil.markWarning("FAILED: column not found in UI.")
+		(!errorFound) ? KeywordUtil.markPassed("PASSED: Verified columns Ui."):KeywordUtil.markWarning("FAILED: Column not found in UI.")
 
 	}
-
-	def checkMultipleFilter(values) {
-		driver.findElement(By.xpath('//div[@id="filter_title"]/a')).click() //open multiple filter table
-		boolean foundMatch = false;
-		List <WebElement> multipleFilterValues = driver.findElements(By.xpath('(//div[@id="popUpDiv"]/.//table)[2]/tbody/tr/td[2]'))
-		String[] parameterValues = values.split(",")
-		println("values::"+parameterValues)
-		for(int i=1; i<multipleFilterValues.size(); i++) {
-			(Arrays.asList(parameterValues).contains(undoEscapeCode(multipleFilterValues[i].getText().toLowerCase()))) ? [break,foundMatch=true]:""
-		}
-		(!foundMatch) ? KeywordUtil.markWarning("FAILED: No filter found match."):KeywordUtil.markPassed("PASSED: Veri")
-		
-		driver.findElement(By.xpath('//input[@value="Close"]')).click() //close multiple filter table
-
-	}
-
 
 }

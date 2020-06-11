@@ -34,12 +34,18 @@ import org.openqa.selenium.support.ui.ExpectedConditions as ExpectedConditions
 
 //WebDriver driver = DriverFactory.getWebDriver()
 //continue with already opened browser
-System.setProperty('webdriver.chrome.driver', 'C:\\Users\\x1047437\\Desktop\\Katalon_Studio_Windows_64-7.5.0\\Katalon_Studio_Windows_64-7.5.0\\configuration\\resources\\drivers\\chromedriver_win32\\chromedriver.exe')
-ChromeOptions options = new ChromeOptions()
-options.setExperimentalOption('debuggerAddress', 'localhost:9222')
-WebDriver driver = new ChromeDriver(options)
-DriverFactory.changeWebDriver(driver)
+//System.setProperty('webdriver.chrome.driver', 'C:\\Users\\x1047437\\Desktop\\Katalon_Studio_Windows_64-7.5.0\\Katalon_Studio_Windows_64-7.5.0\\configuration\\resources\\drivers\\chromedriver_win32\\chromedriver.exe')
+//ChromeOptions options = new ChromeOptions()
+//options.setExperimentalOption('debuggerAddress', 'localhost:9222')
+//WebDriver driver = new ChromeDriver(options)
+//DriverFactory.changeWebDriver(driver)
 
-//WebUI.callTestCase(findTestCase('Components/Login/Login'), [:], FailureHandling.STOP_ON_FAILURE)
-CustomKeywords.'com.reusableComponents.ManzonAPI_helper.verifyURL'('https://dfwt-dev.itg.ti.com/ToTaL/drilldown?groupBy=loc&area=sort&perspective=fab&tranDate=20190101-20200229&local=local&fabLocation=AMKORK4&sbe=ASC&columns=24,25,9')//20200101-20200229
+WebUI.callTestCase(findTestCase('Components/Login/Login'), [:], FailureHandling.STOP_ON_FAILURE)
+CustomKeywords.'com.reusableComponents.ManzonAPI_helper.verifyURL'('https://dfwt-dev.itg.ti.com/ToTaL/drilldown?groupBy=FAC&area=SORT&perspective=Fab&tranDate=20200614-20200814&fabLocation=amkort5,AMKORK4&sbe=ASC&columns=21')//20200101-20200229
+
+//test(invalid url):: https://dfwt-dev.itg.ti.com/ToTaL/drilldown?groupBy=fav&area=SORT&perspective=Fab&tranDate=20200614-20200814&fabLocation=amkort5,AMKORK4&sbe=ASC&columns=21
+//test(valid url BUT no data found)::https://dfwt-dev.itg.ti.com/ToTaL/drilldown?groupBy=FAC&area=SORT&perspective=Fab&tranDate=20200614-20200814&fabLocation=amkort5,AMKORK4&sbe=ASC&columns=21
+//test(valid url AND data found)::https://dfwt-dev.itg.ti.com/ToTaL/drilldown?groupBy=loc&area=sort&perspective=fab&tranDate=20190101-20200229&local=local&fabLocation=AMKORK4&sbe=ASC&columns=24,25,9
+
+
 

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<WebElementEntity>
+   <description></description>
+   <name>loading</name>
+   <tag></tag>
+   <elementGuidId>b1f72e6d-9f89-4f25-89cb-eaf7c706f29f</elementGuidId>
+   <selectorCollection>
+      <entry>
+         <key>BASIC</key>
+         <value>//img[@src=&quot;/ToTaL/images/ajax-loader-clock.gif&quot;]</value>
+      </entry>
+   </selectorCollection>
+   <selectorMethod>BASIC</selectorMethod>
+   <useRalativeImagePath>false</useRalativeImagePath>
+   <webElementProperties>
+      <isSelected>true</isSelected>
+      <matchCondition>equals</matchCondition>
+      <name>xpath</name>
+      <type>Main</type>
+      <value>//img[@src=&quot;/ToTaL/images/ajax-loader-clock.gif&quot;]</value>
+   </webElementProperties>
+</WebElementEntity>
