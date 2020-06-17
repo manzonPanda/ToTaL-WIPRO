@@ -41,7 +41,7 @@ import org.openqa.selenium.support.ui.ExpectedConditions as ExpectedConditions
 //DriverFactory.changeWebDriver(driver)
 
 WebUI.callTestCase(findTestCase('Components/Login/Login'), [:], FailureHandling.STOP_ON_FAILURE)
-CustomKeywords.'com.reusableComponents.ManzonAPI_helper.verifyURL'('https://dfwt-dev.itg.ti.com/ToTaL/drilldown?groupBy=FAC&area=SORT&perspective=Fab&tranDate=20200614-20200814&fabLocation=amkort5,AMKORK4&sbe=ASC&columns=21')//20200101-20200229
+CustomKeywords.'com.reusableComponents.ManzonAPI_helper.verifyURL'('https://dfwt-dev.itg.ti.com/ToTaL/drilldown?groupBy=loc&area=sort&perspective=fab&tranDate=20190101-20200229&local=local&fabLocation=AMKORK4&sbe=ASC&columns=24,25,9')
 
 //test(invalid url):: https://dfwt-dev.itg.ti.com/ToTaL/drilldown?groupBy=fav&area=SORT&perspective=Fab&tranDate=20200614-20200814&fabLocation=amkort5,AMKORK4&sbe=ASC&columns=21
 //test(valid url BUT no data found)::https://dfwt-dev.itg.ti.com/ToTaL/drilldown?groupBy=FAC&area=SORT&perspective=Fab&tranDate=20200614-20200814&fabLocation=amkort5,AMKORK4&sbe=ASC&columns=21

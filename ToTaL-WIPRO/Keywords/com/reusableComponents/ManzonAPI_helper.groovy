@@ -76,12 +76,12 @@ class ManzonAPI_helper {
 
 		'Waits for ToTaL Page to load.'
 		WebUI.waitForPageLoad(1800)
-		
+
 		WebUI.waitForElementNotPresent(findTestObject('loading'), 180)
 
-//		'Verifies home title in ToTaL Homepage.' 
-//		WebUI.waitForElementPresent(findTestObject('Login/home title'), 30)
-		
+		//		'Verifies home title in ToTaL Homepage.'
+		//		WebUI.waitForElementPresent(findTestObject('Login/home title'), 30)
+
 	}
 	@Keyword
 	def verifyURL(String combination) {
@@ -101,7 +101,16 @@ class ManzonAPI_helper {
 				KeywordUtil.markPassed("PASSED: No data found for a given URL.")
 			}
 		}else {
-			KeywordUtil.markFailedAndStop("ERROR: Invalid URL.")
+			//KeywordUtil.markErrorAndStop("ERROR: Invalid URL.")
+			openBrowser(combination)
+			WebUI.waitForElementPresent(findTestObject('processRequestErrorMessage'), 60)
+
+			List <WebElement> requestErrorMessage = driver.findElements(By.xpath(findTestObject('processRequestErrorMessage').findPropertyValue('xpath')))
+			if(requestErrorMessage.size()>0) {
+				KeywordUtil.markPassed('PASSED: Error message found. \"Could not process request due to the following error(s)\"')
+			}else {
+				KeywordUtil.markErrorAndStop("ERROR: Could not find String error message. \"Could not process request due to the following error(s)\"")
+			}
 		}
 	}
 
@@ -131,9 +140,9 @@ class ManzonAPI_helper {
 				if( value=="" || value.indexOf("*")>=0 ) { //null || wild card
 					errors.add("Null value or wild card is not allowed: \""+parameter+"="+value+"\"")
 				}
-//				else {
-//					KeywordUtil.markPassed("VERIFIED: Non-required parameter(${parameter}) found.")
-//				}
+				//				else {
+				//					KeywordUtil.markPassed("VERIFIED: Non-required parameter(${parameter}) found.")
+				//				}
 				if( parameter.equals("columns") ) {//wrong format || not found in predefined values
 					(verifiedColumns(value,getValueOfParameter("area",url))) ? "":errors.add("Invalid columns value: \""+value+"\"")
 				}
@@ -165,7 +174,7 @@ class ManzonAPI_helper {
 
 		if(errors.size()>0) {
 			for(String error : errors) {
-				KeywordUtil.markWarning("ERROR: "+error)
+				KeywordUtil.markErrorAndStop("ERROR: "+error)
 			}
 			return false
 		}else {
@@ -201,7 +210,7 @@ class ManzonAPI_helper {
 
 		if(errors.size()>0) {
 			for(String error : errors) {
-				KeywordUtil.markWarning("ERROR: "+error)
+				KeywordUtil.markErrorAndStop("ERROR: "+error)
 			}
 			return false
 		}else {
@@ -495,7 +504,7 @@ class ManzonAPI_helper {
 		//code for verifying groupBy parameter
 		String mainTitle = driver.findElement(By.xpath('//div[@id="main_title"]')).getText().toLowerCase()
 		String parameterValue = getValueOfParameter("groupBy",url).toLowerCase()
-		(mainTitle.contains(parameterValue)) ? KeywordUtil.markPassed("PASSED: Verified groupBy UI."):KeywordUtil.markWarning("ERROR: groupBy value does not match.")
+		(mainTitle.contains(parameterValue)) ? KeywordUtil.markPassed("PASSED: Verified groupBy UI."):KeywordUtil.markErrorAndStop("ERROR: groupBy value does not match.")
 	}
 	public boolean verifyAreaUi(url) {
 		//code for verifying area parameter
@@ -503,16 +512,16 @@ class ManzonAPI_helper {
 		String parameterValue = getValueOfParameter("area",url).toLowerCase()
 		switch(parameterValue) {
 			case "test" :
-				(mainTitle.contains("test")) ?  KeywordUtil.markPassed("PASSED: Verified area UI."):KeywordUtil.markWarning("ERROR: area value does not match in UI.")
+				(mainTitle.contains("test")) ?  KeywordUtil.markPassed("PASSED: Verified area UI."):KeywordUtil.markErrorAndStop("ERROR: area value does not match in UI.")
 				break;
 			case "assy" :
-				(mainTitle.contains("assembly")) ?  KeywordUtil.markPassed("PASSED: Verified area UI."):KeywordUtil.markWarning("ERROR: area value does not match in UI.")
+				(mainTitle.contains("assembly")) ?  KeywordUtil.markPassed("PASSED: Verified area UI."):KeywordUtil.markErrorAndStop("ERROR: area value does not match in UI.")
 				break;
 			case "sort" :
-				(mainTitle.contains("probe")) ?  KeywordUtil.markPassed("PASSED: Verified area UI."):KeywordUtil.markWarning("ERROR: area value does not match in UI.")
+				(mainTitle.contains("probe")) ?  KeywordUtil.markPassed("PASSED: Verified area UI."):KeywordUtil.markErrorAndStop("ERROR: area value does not match in UI.")
 				break;
 			case "fab" :
-				(mainTitle.contains("fab")) ?  KeywordUtil.markPassed("PASSED: Verified area UI."):KeywordUtil.markWarning("ERROR: area value does not match in UI.")
+				(mainTitle.contains("fab")) ?  KeywordUtil.markPassed("PASSED: Verified area UI."):KeywordUtil.markErrorAndStop("ERROR: area value does not match in UI.")
 				break;
 		}
 	}
@@ -524,9 +533,9 @@ class ManzonAPI_helper {
 		if(groupByValue == "fac" || groupByValue == "loc") {
 			switch(parameterValue) {
 				case "fab":
-					(mainTitle.contains("fab")) ? KeywordUtil.markPassed("PASSED: Verified perspective."):KeywordUtil.markWarning("ERROR: perspective value does not match.")
+					(mainTitle.contains("fab")) ? KeywordUtil.markPassed("PASSED: Verified perspective."):KeywordUtil.markErrorAndStop("ERROR: perspective value does not match.")
 				case "at":
-					(mainTitle.contains("fab")) ? KeywordUtil.markWarning("ERROR: perspective value does not match."):KeywordUtil.markPassed("PASSED: Verified perspective.")
+					(mainTitle.contains("fab")) ? KeywordUtil.markErrorAndStop("ERROR: perspective value does not match."):KeywordUtil.markPassed("PASSED: Verified perspective.")
 			}
 		}
 
@@ -553,7 +562,7 @@ class ManzonAPI_helper {
 				if(daysDiff>=89 && daysDiff<=91) {
 					KeywordUtil.markPassed("PASSED: Verified timeframe value of Last 90 days in UI.")
 				}else {
-					KeywordUtil.markWarning("FAILED: Invalid timeframe value of last 90 days in UI.")
+					KeywordUtil.markErrorAndStop("FAILED: Invalid timeframe value of last 90 days in UI.")
 				}
 				break;
 			case "l30d":
@@ -561,7 +570,7 @@ class ManzonAPI_helper {
 				if(daysDiff>=29 && daysDiff<=31) {
 					KeywordUtil.markPassed("PASSED: Verified timeframe value of Last 30 days in UI.")
 				}else {
-					KeywordUtil.markWarning("FAILED: Invalid timeframe value of last 30 days in UI.")
+					KeywordUtil.markErrorAndStop("FAILED: Invalid timeframe value of last 30 days in UI.")
 				}
 				break;
 			case "lm":
@@ -569,7 +578,7 @@ class ManzonAPI_helper {
 				if(monthDiff==1) {
 					KeywordUtil.markPassed("PASSED: Verified timeframe value of Last month in UI.")
 				}else {
-					KeywordUtil.markWarning("FAILED: Invalid timeframe value of last month in UI.")
+					KeywordUtil.markErrorAndStop("FAILED: Invalid timeframe value of last month in UI.")
 				}
 				break;
 			case "lq":
@@ -587,7 +596,7 @@ class ManzonAPI_helper {
 				if(Integer.parseInt(startDate.split("-")[1])==expectedStartMonth && Integer.parseInt(endDate.split("-")[1])==expectedEndMonth) {
 					KeywordUtil.markPassed("PASSED: Verified timeframe value of Last quarter in UI.")
 				}else {
-					KeywordUtil.markWarning("FAILED: Invalid timeframe value of last quarter in UI.")
+					KeywordUtil.markErrorAndStop("FAILED: Invalid timeframe value of last quarter in UI.")
 				}
 				break;
 			case "mtd":
@@ -595,7 +604,7 @@ class ManzonAPI_helper {
 				endDate.split("-")[1]==currentDate.split("-")[1] &&endDate.split("-")[2]==currentDate.split("-")[2]) {
 					KeywordUtil.markPassed("PASSED: Verified timeframe value of Month to date in UI.")
 				}else {
-					KeywordUtil.markWarning("FAILED: Invalid timeframe value of Month to date in UI.")
+					KeywordUtil.markErrorAndStop("FAILED: Invalid timeframe value of Month to date in UI.")
 				}
 				break;
 			case "qtd":
@@ -614,7 +623,7 @@ class ManzonAPI_helper {
 				endDate.split("-")[1]==currentDate.split("-")[1] && endDate.split("-")[2]==currentDate.split("-")[2] ) {
 					KeywordUtil.markPassed("PASSED: Verified timeframe value of Quarter to date in UI.")
 				}else {
-					KeywordUtil.markWarning("FAILED: Invalid timeframe value of Quarter to date in UI.")
+					KeywordUtil.markErrorAndStop("FAILED: Invalid timeframe value of Quarter to date in UI.")
 				}
 				break;
 			case "ytd":
@@ -622,14 +631,14 @@ class ManzonAPI_helper {
 				endDate.split("-")[0]==currentDate.split("-")[0] && endDate.split("-")[1]==currentDate.split("-")[1] && endDate.split("-")[2]==currentDate.split("-")[2] ) {
 					KeywordUtil.markPassed("PASSED: Verified timeframe value of Year to date in UI.")
 				}else {
-					KeywordUtil.markWarning("FAILED: Invalid timeframe value of Year to date in UI.")
+					KeywordUtil.markErrorAndStop("FAILED: Invalid timeframe value of Year to date in UI.")
 				}
 				break;
 			default:
 				if(valueOfTranDate.split("-")[0].equals(startDate.replaceAll("-", "")) & valueOfTranDate.split("-")[1].equals(endDate.replaceAll("-", ""))) {
 					KeywordUtil.markPassed("PASSED: Verified timeframe value of yyyyMMdd-yyyyMMdd in UI.")
 				}else {
-					KeywordUtil.markWarning("FAILED: Invalid timeframe value of yyyyMMdd-yyyyMMdd in UI.")
+					KeywordUtil.markErrorAndStop("FAILED: Invalid timeframe value of yyyyMMdd-yyyyMMdd in UI.")
 				}
 		}
 
@@ -654,7 +663,7 @@ class ManzonAPI_helper {
 	//		}else {
 	//			(checkMultipleFilter(parameterValue)) ? "":(errorFound=true)
 	//		}
-	//		(!errorFound) ? KeywordUtil.markPassed("PASSED: Verified fabLocation Ui."):KeywordUtil.markWarning("Failed: Does not match fabLocation Ui.")
+	//		(!errorFound) ? KeywordUtil.markPassed("PASSED: Verified fabLocation Ui."):KeywordUtil.markErrorAndStop("Failed: Does not match fabLocation Ui.")
 	//	}
 	public boolean verifyNonRequiredUi(parameter,url) {
 		boolean errorFound = false
@@ -677,7 +686,7 @@ class ManzonAPI_helper {
 			driver.findElement(By.xpath('//input[@value="Close"]')).click() //close multiple filter table
 		}
 
-		(!errorFound) ? KeywordUtil.markPassed("PASSED: Verified ${parameter} filter Ui."):KeywordUtil.markWarning("Failed: Does not match ${parameter} filter Ui.")
+		(!errorFound) ? KeywordUtil.markPassed("PASSED: Verified ${parameter} filter Ui."):KeywordUtil.markErrorAndStop("Failed: Does not match ${parameter} filter Ui.")
 	}
 	//	public boolean verifyFabFacilityUi(url) {
 	//		//code for verifying fabFacility parameter
@@ -713,7 +722,7 @@ class ManzonAPI_helper {
 	//		}else {
 	//			(checkMultipleFilter(parameterValue)) ? "":(errorFound=true)
 	//		}
-	//		(!errorFound) ? KeywordUtil.markPassed("PASSED: Verified sbe Ui."):KeywordUtil.markWarning("Failed: Does not match sbe Ui.")
+	//		(!errorFound) ? KeywordUtil.markPassed("PASSED: Verified sbe Ui."):KeywordUtil.markErrorAndStop("Failed: Does not match sbe Ui.")
 	//	}
 	//	public boolean verifySbe1Ui(url) {
 	//		//code for verifying sbe1 parameter
@@ -760,7 +769,7 @@ class ManzonAPI_helper {
 					String target = test.split(",")[Integer.parseInt(parameterValue[i])]
 					(tableColumnsValues.contains(target)) ? "":[
 						errorFound=true,
-						KeywordUtil.markWarning("Index "+parameterValue[i]+"("+target+") of columns parameter not found in the table.")
+						KeywordUtil.markErrorAndStop("Index "+parameterValue[i]+"("+target+") of columns parameter not found in the table.")
 					]
 				}
 				break;
@@ -770,7 +779,7 @@ class ManzonAPI_helper {
 					String target = sort.split(",")[Integer.parseInt(parameterValue[i])]
 					(tableColumnsValues.contains(target)) ? "":[
 						errorFound=true,
-						KeywordUtil.markWarning("Index "+parameterValue[i]+"("+target+") of columns parameter not found in the table.")
+						KeywordUtil.markErrorAndStop("Index "+parameterValue[i]+"("+target+") of columns parameter not found in the table.")
 					]
 				}
 				break;
@@ -780,7 +789,7 @@ class ManzonAPI_helper {
 					String target = assy.split(",")[Integer.parseInt(parameterValue[i])]
 					(tableColumnsValues.contains(target)) ? "":[
 						errorFound=true,
-						KeywordUtil.markWarning("Index "+parameterValue[i]+"("+target+") of columns parameter not found in the table.")
+						KeywordUtil.markErrorAndStop("Index "+parameterValue[i]+"("+target+") of columns parameter not found in the table.")
 					]
 				}
 				break;
@@ -790,13 +799,13 @@ class ManzonAPI_helper {
 					String target = fab.split(",")[Integer.parseInt(parameterValue[i])]
 					(tableColumnsValues.contains(target)) ? "":[
 						errorFound=true,
-						KeywordUtil.markWarning("Index "+parameterValue[i]+"("+target+") of columns parameter not found in the table.")
+						KeywordUtil.markErrorAndStop("Index "+parameterValue[i]+"("+target+") of columns parameter not found in the table.")
 					]
 				}
 				break;
 		}
 
-		(!errorFound) ? KeywordUtil.markPassed("PASSED: Verified columns Ui."):KeywordUtil.markWarning("FAILED: Column not found in UI.")
+		(!errorFound) ? KeywordUtil.markPassed("PASSED: Verified columns Ui."):KeywordUtil.markErrorAndStop("FAILED: Column not found in UI.")
 
 	}
 
