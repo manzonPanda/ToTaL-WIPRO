@@ -3,6 +3,16 @@
    <description></description>
    <name>ToTaL_TC_ALL</name>
    <tag></tag>
+   <integratedEntity>
+      <productName>com.katalon.plugin.testrail.TestRailIntegration</productName>
+      <properties>
+         <entry>
+            <key>testRail.testcase.id</key>
+            <value>241894</value>
+         </entry>
+      </properties>
+      <type>TESTCASE</type>
+   </integratedEntity>
    <comment></comment>
    <testCaseGuid>0f8e9313-0d8d-4f93-b268-1368f5ff08db</testCaseGuid>
 </TestCaseEntity>

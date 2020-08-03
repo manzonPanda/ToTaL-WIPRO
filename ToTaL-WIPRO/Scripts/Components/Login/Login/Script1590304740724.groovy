@@ -16,7 +16,7 @@ import java.util.Map;
 
 
 //System.setProperty("webdriver.chrome.driver", DriverFactory.getChromeDriverPath());
-System.setProperty("webdriver.chrome.driver", "C:\\Users\\x1047437\\Desktop\\Katalon_Studio_Windows_64-7.5.0\\Katalon_Studio_Windows_64-7.5.0\\configuration\\resources\\drivers\\chromedriver_win32\\chromedriver.exe");
+System.setProperty("webdriver.chrome.driver", "C:\\Users\\x1047437\\Desktop\\Katalon_Studio_Windows_64-7.5.0\\configuration\\resources\\drivers\\chromedriver.exe");
 
 ChromeDriver driver= new ChromeDriver()
 
